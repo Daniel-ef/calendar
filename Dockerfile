@@ -14,6 +14,5 @@ EXPOSE "55443:55443"
 # Compile the binary exe for our app.
 RUN go build -o main -v calendar/cmd/calendar-api-server
 # Run postgres migration
-RUN
 # Start the application.
 CMD ["/go/src/calendar/main", "--port", "55443"]
