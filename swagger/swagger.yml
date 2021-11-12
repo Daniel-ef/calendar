@@ -1,0 +1,25 @@
+swagger: "2.0"
+info:
+  title: Calendar api
+  version: 1.0.0
+schemes:
+- http
+paths:
+  /ping:
+    get:
+      responses:
+        200:
+          description: Ok
+  /users/create:
+  /users/info:
+  /users/edit:
+
+  /meet/intersection:
+
+  /meet/create:
+  /meet/edit:
+  /meet/info:
+
+  /invite/accept:
+  /invite/reject:
+  /invite/indetermin:
