@@ -4,14 +4,15 @@ services:
   postgres:
     container_name: postgres
     image: postgres:latest
+    restart: always
     environment:
       POSTGRES_USER: user
       POSTGRES_PASSWORD: mypwd
       POSTGRES_DB:  calendar
     ports:
       - "5432:5432"
-#    volumes:
-#      - dbdata:/var/lib/postgresql/data
+    volumes:
+      - ./migrations:/docker-entrypoint-initdb.d
 
   go:
     container_name: go

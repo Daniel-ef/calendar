@@ -5,7 +5,8 @@ RUN mkdir /go/src/calendar
 WORKDIR /go/src/calendar
 # Copy everything from this project into the filesystem of the container.
 COPY . .
-# Obtain the package needed to run code. Alternatively use GO Modules. 
+RUN apt install postgresql
+# Obtain the package needed to run code. Alternatively use GO Modules.
 RUN go get -u github.com/lib/pq
 RUN go get -u -f github.com/go-openapi/runtime
 RUN go get -u -f github.com/jessevdk/go-flags
