@@ -190,9 +190,16 @@ definitions:
     additionalProperties: false
     properties:
       before_start:
-        description: Minutes before meeting start
         type: integer
-      notification_type:
+        minimum: 1
+      step:
+        type: string
+        enum:
+          - m
+          - h
+          - d
+          - w
+      method:
         type: string
         enum:
           - email
@@ -200,7 +207,8 @@ definitions:
           - telegram
     required:
       - before_start
-      - notification_type
+      - step
+      - method
 
   MeetCreateResponse:
     type: object

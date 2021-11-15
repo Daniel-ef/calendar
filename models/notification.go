@@ -20,14 +20,20 @@ import (
 // swagger:model Notification
 type Notification struct {
 
-	// Minutes before meeting start
+	// before start
 	// Required: true
+	// Minimum: 1
 	BeforeStart *int64 `json:"before_start"`
 
-	// notification type
+	// method
 	// Required: true
 	// Enum: [email sms telegram]
-	NotificationType *string `json:"notification_type"`
+	Method *string `json:"method"`
+
+	// step
+	// Required: true
+	// Enum: [m h d w]
+	Step *string `json:"step"`
 }
 
 // Validate validates this notification
@@ -38,7 +44,11 @@ func (m *Notification) Validate(formats strfmt.Registry) error {
 		res = append(res, err)
 	}
 
-	if err := m.validateNotificationType(formats); err != nil {
+	if err := m.validateMethod(formats); err != nil {
+		res = append(res, err)
+	}
+
+	if err := m.validateStep(formats); err != nil {
 		res = append(res, err)
 	}
 
@@ -54,10 +64,14 @@ func (m *Notification) validateBeforeStart(formats strfmt.Registry) error {
 		return err
 	}
 
+	if err := validate.MinimumInt("before_start", "body", *m.BeforeStart, 1, false); err != nil {
+		return err
+	}
+
 	return nil
 }
 
-var notificationTypeNotificationTypePropEnum []interface{}
+var notificationTypeMethodPropEnum []interface{}
 
 func init() {
 	var res []string
@@ -65,38 +79,87 @@ func init() {
 		panic(err)
 	}
 	for _, v := range res {
-		notificationTypeNotificationTypePropEnum = append(notificationTypeNotificationTypePropEnum, v)
+		notificationTypeMethodPropEnum = append(notificationTypeMethodPropEnum, v)
 	}
 }
 
 const (
 
-	// NotificationNotificationTypeEmail captures enum value "email"
-	NotificationNotificationTypeEmail string = "email"
+	// NotificationMethodEmail captures enum value "email"
+	NotificationMethodEmail string = "email"
 
-	// NotificationNotificationTypeSms captures enum value "sms"
-	NotificationNotificationTypeSms string = "sms"
+	// NotificationMethodSms captures enum value "sms"
+	NotificationMethodSms string = "sms"
 
-	// NotificationNotificationTypeTelegram captures enum value "telegram"
-	NotificationNotificationTypeTelegram string = "telegram"
+	// NotificationMethodTelegram captures enum value "telegram"
+	NotificationMethodTelegram string = "telegram"
 )
 
 // prop value enum
-func (m *Notification) validateNotificationTypeEnum(path, location string, value string) error {
-	if err := validate.EnumCase(path, location, value, notificationTypeNotificationTypePropEnum, true); err != nil {
+func (m *Notification) validateMethodEnum(path, location string, value string) error {
+	if err := validate.EnumCase(path, location, value, notificationTypeMethodPropEnum, true); err != nil {
 		return err
 	}
 	return nil
 }
 
-func (m *Notification) validateNotificationType(formats strfmt.Registry) error {
+func (m *Notification) validateMethod(formats strfmt.Registry) error {
 
-	if err := validate.Required("notification_type", "body", m.NotificationType); err != nil {
+	if err := validate.Required("method", "body", m.Method); err != nil {
 		return err
 	}
 
 	// value enum
-	if err := m.validateNotificationTypeEnum("notification_type", "body", *m.NotificationType); err != nil {
+	if err := m.validateMethodEnum("method", "body", *m.Method); err != nil {
+		return err
+	}
+
+	return nil
+}
+
+var notificationTypeStepPropEnum []interface{}
+
+func init() {
+	var res []string
+	if err := json.Unmarshal([]byte(`["m","h","d","w"]`), &res); err != nil {
+		panic(err)
+	}
+	for _, v := range res {
+		notificationTypeStepPropEnum = append(notificationTypeStepPropEnum, v)
+	}
+}
+
+const (
+
+	// NotificationStepM captures enum value "m"
+	NotificationStepM string = "m"
+
+	// NotificationStepH captures enum value "h"
+	NotificationStepH string = "h"
+
+	// NotificationStepD captures enum value "d"
+	NotificationStepD string = "d"
+
+	// NotificationStepW captures enum value "w"
+	NotificationStepW string = "w"
+)
+
+// prop value enum
+func (m *Notification) validateStepEnum(path, location string, value string) error {
+	if err := validate.EnumCase(path, location, value, notificationTypeStepPropEnum, true); err != nil {
+		return err
+	}
+	return nil
+}
+
+func (m *Notification) validateStep(formats strfmt.Registry) error {
+
+	if err := validate.Required("step", "body", m.Step); err != nil {
+		return err
+	}
+
+	// value enum
+	if err := m.validateStepEnum("step", "body", *m.Step); err != nil {
 		return err
 	}
 

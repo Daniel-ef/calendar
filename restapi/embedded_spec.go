@@ -247,19 +247,29 @@ func init() {
       "type": "object",
       "required": [
         "before_start",
-        "notification_type"
+        "step",
+        "method"
       ],
       "properties": {
         "before_start": {
-          "description": "Minutes before meeting start",
-          "type": "integer"
+          "type": "integer",
+          "minimum": 1
         },
-        "notification_type": {
+        "method": {
           "type": "string",
           "enum": [
             "email",
             "sms",
             "telegram"
+          ]
+        },
+        "step": {
+          "type": "string",
+          "enum": [
+            "m",
+            "h",
+            "d",
+            "w"
           ]
         }
       },
@@ -542,19 +552,29 @@ func init() {
       "type": "object",
       "required": [
         "before_start",
-        "notification_type"
+        "step",
+        "method"
       ],
       "properties": {
         "before_start": {
-          "description": "Minutes before meeting start",
-          "type": "integer"
+          "type": "integer",
+          "minimum": 1
         },
-        "notification_type": {
+        "method": {
           "type": "string",
           "enum": [
             "email",
             "sms",
             "telegram"
+          ]
+        },
+        "step": {
+          "type": "string",
+          "enum": [
+            "m",
+            "h",
+            "d",
+            "w"
           ]
         }
       },

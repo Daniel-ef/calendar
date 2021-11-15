@@ -33,13 +33,6 @@ type Meeting struct {
 	meeting_link  string
 }
 
-func makeNotifications(notifications []*models.Notification) (ret []*Notification) {
-	for _, notification := range notifications {
-		ret = append(ret, &Notification{*notification.BeforeStart, *notification.NotificationType})
-	}
-	return
-}
-
 func (n *Notification) Value() (driver.Value, error) {
 	return fmt.Sprintf("('%d','%s')", n.before_start, n.notification_type), nil
 }
@@ -70,6 +63,8 @@ func NewMeetCreateHandler(dbClient *sqlx.DB) operations.PostMeetCreateHandlerFun
 	return func(params operations.PostMeetCreateParams) middleware.Responder {
 		meet := params.Body
 		trx, err := dbClient.Beginx()
+
+		// Meetings
 		rows, err := trx.Query(queries.MeetCreate,
 			uuid.New().String(),
 			meet.Name,
@@ -98,6 +93,7 @@ func NewMeetCreateHandler(dbClient *sqlx.DB) operations.PostMeetCreateHandlerFun
 		}
 		_ = rows.Close()
 
+		// Invitations
 		userIds := GetUserIds(append(meet.Participants, *meet.Creator))
 
 		if _, err = trx.Exec(queries.InvitationsCreate,
@@ -105,11 +101,27 @@ func NewMeetCreateHandler(dbClient *sqlx.DB) operations.PostMeetCreateHandlerFun
 			log.Print("Error while creating invitations: ", err.Error())
 			return operations.NewPostMeetCreateBadRequest()
 		}
+
+		// Notifications
+		beforeStarts := []int64{}
+		steps := []string{}
+		methods := []string{}
+		for _, notification := range meet.Notifications {
+			beforeStarts = append(beforeStarts, *notification.BeforeStart)
+			steps = append(steps, *notification.Step)
+			methods = append(methods, *notification.Method)
+		}
+		if _, err = trx.Exec(queries.NotificationCreate,
+			meetId, pq.Int64Array(beforeStarts), pq.StringArray(steps),
+			pq.StringArray(methods)); err != nil {
+			log.Print("Error while creating notifications: ", err.Error())
+			return operations.NewPostMeetCreateBadRequest()
+		}
+
+		// Commit
 		if err = trx.Commit(); err != nil {
 			log.Print("Error while committing: ", err.Error())
 		}
-
-		// notifications
 
 		return &operations.PostMeetCreateOK{Payload: &models.MeetCreateResponse{MeetID: meetId}}
 	}

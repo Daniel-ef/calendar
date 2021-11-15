@@ -6,7 +6,9 @@ SET search_path TO calendar;
 
 CREATE TYPE calendar.visibility_t AS ENUM('all', 'participants');
 
-create TYPE calendar.notification_type_t AS ENUM('email', 'sms', 'telegram');
+create TYPE calendar.notification_method_t AS ENUM('email', 'sms', 'telegram');
+
+CREATE TYPE calendar.notification_step_t as ENUM('m', 'h', 'd', 'w');
 
 CREATE TYPE calendar.accepted_t AS ENUM('yes', 'no', 'maybe');
 
@@ -43,9 +45,10 @@ CREATE TABLE calendar.meetings(
 CREATE INDEX meetings_time_start_idx ON calendar.meetings(time_start);
 
 CREATE TABLE calendar.notifications (
-    meet_id text PRIMARY KEY,
-    before_start interval,
-    notification_type notification_type_t
+    meet_id text REFERENCES meetings,
+    before_start int,
+    step notification_step_t,
+    method notification_method_t
     );
 
 CREATE TABLE calendar.invitations (
