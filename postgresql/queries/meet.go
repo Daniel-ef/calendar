@@ -23,9 +23,9 @@ const InvitationsCreate = `INSERT INTO calendar.invitations(
 	SELECT $1 as meet_id, UNNEST($2::text[]) as user_id
 );`
 
-const MeetFetch = `
-SELECT m.meet_id, name, description, visibility,creator, 
-	time_start, time_end, meeting_room, meeting_link, array_agg(user_id) as participants
+const MeetInfo = `
+SELECT name, description, visibility,creator, 
+	time_start, time_end, meeting_room, meeting_link, array_agg(user_id)::text[] as participants
 FROM calendar.meetings as m
 INNER JOIN calendar.invitations as i on m.meet_id = i.meet_id
 WHERE m.meet_id = $1

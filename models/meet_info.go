@@ -7,6 +7,7 @@ package models
 
 import (
 	"context"
+	"encoding/json"
 	"strconv"
 
 	"github.com/go-openapi/errors"
@@ -44,6 +45,10 @@ type MeetInfo struct {
 	// Min Items: 1
 	Participants []string `json:"participants"`
 
+	// repeat
+	// Enum: [day week month year workday]
+	Repeat string `json:"repeat,omitempty"`
+
 	// time end
 	// Required: true
 	// Format: date-time
@@ -53,6 +58,11 @@ type MeetInfo struct {
 	// Required: true
 	// Format: date-time
 	TimeStart *strfmt.DateTime `json:"time_start"`
+
+	// visibility
+	// Required: true
+	// Enum: [all participants]
+	Visibility *string `json:"visibility"`
 }
 
 // Validate validates this meet info
@@ -75,11 +85,19 @@ func (m *MeetInfo) Validate(formats strfmt.Registry) error {
 		res = append(res, err)
 	}
 
+	if err := m.validateRepeat(formats); err != nil {
+		res = append(res, err)
+	}
+
 	if err := m.validateTimeEnd(formats); err != nil {
 		res = append(res, err)
 	}
 
 	if err := m.validateTimeStart(formats); err != nil {
+		res = append(res, err)
+	}
+
+	if err := m.validateVisibility(formats); err != nil {
 		res = append(res, err)
 	}
 
@@ -147,6 +165,57 @@ func (m *MeetInfo) validateParticipants(formats strfmt.Registry) error {
 	return nil
 }
 
+var meetInfoTypeRepeatPropEnum []interface{}
+
+func init() {
+	var res []string
+	if err := json.Unmarshal([]byte(`["day","week","month","year","workday"]`), &res); err != nil {
+		panic(err)
+	}
+	for _, v := range res {
+		meetInfoTypeRepeatPropEnum = append(meetInfoTypeRepeatPropEnum, v)
+	}
+}
+
+const (
+
+	// MeetInfoRepeatDay captures enum value "day"
+	MeetInfoRepeatDay string = "day"
+
+	// MeetInfoRepeatWeek captures enum value "week"
+	MeetInfoRepeatWeek string = "week"
+
+	// MeetInfoRepeatMonth captures enum value "month"
+	MeetInfoRepeatMonth string = "month"
+
+	// MeetInfoRepeatYear captures enum value "year"
+	MeetInfoRepeatYear string = "year"
+
+	// MeetInfoRepeatWorkday captures enum value "workday"
+	MeetInfoRepeatWorkday string = "workday"
+)
+
+// prop value enum
+func (m *MeetInfo) validateRepeatEnum(path, location string, value string) error {
+	if err := validate.EnumCase(path, location, value, meetInfoTypeRepeatPropEnum, true); err != nil {
+		return err
+	}
+	return nil
+}
+
+func (m *MeetInfo) validateRepeat(formats strfmt.Registry) error {
+	if swag.IsZero(m.Repeat) { // not required
+		return nil
+	}
+
+	// value enum
+	if err := m.validateRepeatEnum("repeat", "body", m.Repeat); err != nil {
+		return err
+	}
+
+	return nil
+}
+
 func (m *MeetInfo) validateTimeEnd(formats strfmt.Registry) error {
 
 	if err := validate.Required("time_end", "body", m.TimeEnd); err != nil {
@@ -167,6 +236,49 @@ func (m *MeetInfo) validateTimeStart(formats strfmt.Registry) error {
 	}
 
 	if err := validate.FormatOf("time_start", "body", "date-time", m.TimeStart.String(), formats); err != nil {
+		return err
+	}
+
+	return nil
+}
+
+var meetInfoTypeVisibilityPropEnum []interface{}
+
+func init() {
+	var res []string
+	if err := json.Unmarshal([]byte(`["all","participants"]`), &res); err != nil {
+		panic(err)
+	}
+	for _, v := range res {
+		meetInfoTypeVisibilityPropEnum = append(meetInfoTypeVisibilityPropEnum, v)
+	}
+}
+
+const (
+
+	// MeetInfoVisibilityAll captures enum value "all"
+	MeetInfoVisibilityAll string = "all"
+
+	// MeetInfoVisibilityParticipants captures enum value "participants"
+	MeetInfoVisibilityParticipants string = "participants"
+)
+
+// prop value enum
+func (m *MeetInfo) validateVisibilityEnum(path, location string, value string) error {
+	if err := validate.EnumCase(path, location, value, meetInfoTypeVisibilityPropEnum, true); err != nil {
+		return err
+	}
+	return nil
+}
+
+func (m *MeetInfo) validateVisibility(formats strfmt.Registry) error {
+
+	if err := validate.Required("visibility", "body", m.Visibility); err != nil {
+		return err
+	}
+
+	// value enum
+	if err := m.validateVisibilityEnum("visibility", "body", *m.Visibility); err != nil {
 		return err
 	}
 

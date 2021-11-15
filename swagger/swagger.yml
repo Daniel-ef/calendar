@@ -70,7 +70,24 @@ paths:
           description: Creation failed
           schema:
             $ref: '#/definitions/ErrorResponse'
-#  /meet/info:
+  /meet/info:
+    get:
+      parameters:
+        - in: query
+          type: string
+          name: meeting_id
+          required: true
+      responses:
+        200:
+          description: Ok
+          schema:
+            $ref: '#/definitions/MeetInfo'
+        400:
+          description: Creation failed
+          schema:
+            $ref: '#/definitions/ErrorResponse'
+        404:
+          description: Not found
 #  /meet/edit:
 #
 #  /invite/accept:

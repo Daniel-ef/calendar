@@ -55,6 +55,35 @@ func init() {
         }
       }
     },
+    "/meet/info": {
+      "get": {
+        "parameters": [
+          {
+            "type": "string",
+            "name": "meeting_id",
+            "in": "query",
+            "required": true
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Ok",
+            "schema": {
+              "$ref": "#/definitions/MeetInfo"
+            }
+          },
+          "400": {
+            "description": "Creation failed",
+            "schema": {
+              "$ref": "#/definitions/ErrorResponse"
+            }
+          },
+          "404": {
+            "description": "Not found"
+          }
+        }
+      }
+    },
     "/ping": {
       "get": {
         "responses": {
@@ -154,7 +183,8 @@ func init() {
         "name",
         "creator",
         "time_start",
-        "time_end"
+        "time_end",
+        "visibility"
       ],
       "properties": {
         "creator": {
@@ -185,6 +215,16 @@ func init() {
             "type": "string"
           }
         },
+        "repeat": {
+          "type": "string",
+          "enum": [
+            "day",
+            "week",
+            "month",
+            "year",
+            "workday"
+          ]
+        },
         "time_end": {
           "type": "string",
           "format": "date-time"
@@ -192,6 +232,13 @@ func init() {
         "time_start": {
           "type": "string",
           "format": "date-time"
+        },
+        "visibility": {
+          "type": "string",
+          "enum": [
+            "all",
+            "participants"
+          ]
         }
       },
       "additionalProperties": false
@@ -303,6 +350,35 @@ func init() {
         }
       }
     },
+    "/meet/info": {
+      "get": {
+        "parameters": [
+          {
+            "type": "string",
+            "name": "meeting_id",
+            "in": "query",
+            "required": true
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Ok",
+            "schema": {
+              "$ref": "#/definitions/MeetInfo"
+            }
+          },
+          "400": {
+            "description": "Creation failed",
+            "schema": {
+              "$ref": "#/definitions/ErrorResponse"
+            }
+          },
+          "404": {
+            "description": "Not found"
+          }
+        }
+      }
+    },
     "/ping": {
       "get": {
         "responses": {
@@ -402,7 +478,8 @@ func init() {
         "name",
         "creator",
         "time_start",
-        "time_end"
+        "time_end",
+        "visibility"
       ],
       "properties": {
         "creator": {
@@ -433,6 +510,16 @@ func init() {
             "type": "string"
           }
         },
+        "repeat": {
+          "type": "string",
+          "enum": [
+            "day",
+            "week",
+            "month",
+            "year",
+            "workday"
+          ]
+        },
         "time_end": {
           "type": "string",
           "format": "date-time"
@@ -440,6 +527,13 @@ func init() {
         "time_start": {
           "type": "string",
           "format": "date-time"
+        },
+        "visibility": {
+          "type": "string",
+          "enum": [
+            "all",
+            "participants"
+          ]
         }
       },
       "additionalProperties": false

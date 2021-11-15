@@ -42,6 +42,9 @@ func NewCalendarAPIAPI(spec *loads.Document) *CalendarAPIAPI {
 
 		JSONProducer: runtime.JSONProducer(),
 
+		GetMeetInfoHandler: GetMeetInfoHandlerFunc(func(params GetMeetInfoParams) middleware.Responder {
+			return middleware.NotImplemented("operation GetMeetInfo has not yet been implemented")
+		}),
 		GetPingHandler: GetPingHandlerFunc(func(params GetPingParams) middleware.Responder {
 			return middleware.NotImplemented("operation GetPing has not yet been implemented")
 		}),
@@ -90,6 +93,8 @@ type CalendarAPIAPI struct {
 	//   - application/json
 	JSONProducer runtime.Producer
 
+	// GetMeetInfoHandler sets the operation handler for the get meet info operation
+	GetMeetInfoHandler GetMeetInfoHandler
 	// GetPingHandler sets the operation handler for the get ping operation
 	GetPingHandler GetPingHandler
 	// GetUsersInfoHandler sets the operation handler for the get users info operation
@@ -175,6 +180,9 @@ func (o *CalendarAPIAPI) Validate() error {
 		unregistered = append(unregistered, "JSONProducer")
 	}
 
+	if o.GetMeetInfoHandler == nil {
+		unregistered = append(unregistered, "GetMeetInfoHandler")
+	}
 	if o.GetPingHandler == nil {
 		unregistered = append(unregistered, "GetPingHandler")
 	}
@@ -275,6 +283,10 @@ func (o *CalendarAPIAPI) initHandlerCache() {
 		o.handlers = make(map[string]map[string]http.Handler)
 	}
 
+	if o.handlers["GET"] == nil {
+		o.handlers["GET"] = make(map[string]http.Handler)
+	}
+	o.handlers["GET"]["/meet/info"] = NewGetMeetInfo(o.context, o.GetMeetInfoHandler)
 	if o.handlers["GET"] == nil {
 		o.handlers["GET"] = make(map[string]http.Handler)
 	}

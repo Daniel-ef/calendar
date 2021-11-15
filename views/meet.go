@@ -7,6 +7,7 @@ import (
 	"database/sql/driver"
 	"fmt"
 	"github.com/go-openapi/runtime/middleware"
+	"github.com/go-openapi/strfmt"
 	"github.com/google/uuid"
 	"github.com/jmoiron/sqlx"
 	"github.com/lib/pq"
@@ -55,6 +56,16 @@ func GetUserIds(participants []string) (userIds []string) {
 
 }
 
+func RemoveCreator(p []string, c string) []string {
+	for i := range p {
+		if p[i] == c {
+			p[i] = p[len(p)-1]
+			return p[:len(p)-1]
+		}
+	}
+	return p
+}
+
 func NewMeetCreateHandler(dbClient *sqlx.DB) operations.PostMeetCreateHandlerFunc {
 	return func(params operations.PostMeetCreateParams) middleware.Responder {
 		meet := params.Body
@@ -75,7 +86,7 @@ func NewMeetCreateHandler(dbClient *sqlx.DB) operations.PostMeetCreateHandlerFun
 			return operations.NewPostMeetCreateBadRequest()
 		}
 		meetId := new(string)
-		if success := rows.Next(); !success {
+		if !rows.Next() {
 			log.Println("Error while fetching meet_id: empty rows")
 			_ = trx.Rollback()
 			return operations.NewPostMeetCreateBadRequest()
@@ -101,5 +112,33 @@ func NewMeetCreateHandler(dbClient *sqlx.DB) operations.PostMeetCreateHandlerFun
 		// notifications
 
 		return &operations.PostMeetCreateOK{Payload: &models.MeetCreateResponse{MeetID: meetId}}
+	}
+}
+
+func NewMeetInfoHandler(dbClient *sqlx.DB) operations.GetMeetInfoHandlerFunc {
+	return func(params operations.GetMeetInfoParams) middleware.Responder {
+		meetId := params.MeetingID
+		rows, err := dbClient.Query(queries.MeetInfo, meetId)
+		if err != nil {
+			log.Print("Error while fetching meeting: ", err.Error())
+			return operations.NewGetMeetInfoBadRequest()
+		}
+		if !rows.Next() {
+			return operations.NewGetMeetInfoNotFound()
+		}
+		response := models.MeetInfo{}
+		response.Visibility = new(string)
+		response.Creator = new(string)
+		response.TimeStart = new(strfmt.DateTime)
+		response.TimeEnd = new(strfmt.DateTime)
+		if err := rows.Scan(&response.Name, &response.Description, response.Visibility,
+			response.Creator, response.TimeStart, response.TimeEnd, &response.MeetingRoom,
+			&response.MeetingLink, pq.Array(&response.Participants)); err != nil {
+			log.Print("Error while fetching meeting: ", err.Error())
+			return operations.NewGetMeetInfoBadRequest()
+		}
+		response.Participants = RemoveCreator(response.Participants, *response.Creator)
+
+		return &operations.GetMeetInfoOK{Payload: &response}
 	}
 }
