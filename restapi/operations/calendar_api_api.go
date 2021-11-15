@@ -45,6 +45,15 @@ func NewCalendarAPIAPI(spec *loads.Document) *CalendarAPIAPI {
 		GetPingHandler: GetPingHandlerFunc(func(params GetPingParams) middleware.Responder {
 			return middleware.NotImplemented("operation GetPing has not yet been implemented")
 		}),
+		GetUsersInfoHandler: GetUsersInfoHandlerFunc(func(params GetUsersInfoParams) middleware.Responder {
+			return middleware.NotImplemented("operation GetUsersInfo has not yet been implemented")
+		}),
+		PostMeetCreateHandler: PostMeetCreateHandlerFunc(func(params PostMeetCreateParams) middleware.Responder {
+			return middleware.NotImplemented("operation PostMeetCreate has not yet been implemented")
+		}),
+		PostUsersCreateHandler: PostUsersCreateHandlerFunc(func(params PostUsersCreateParams) middleware.Responder {
+			return middleware.NotImplemented("operation PostUsersCreate has not yet been implemented")
+		}),
 	}
 }
 
@@ -83,6 +92,12 @@ type CalendarAPIAPI struct {
 
 	// GetPingHandler sets the operation handler for the get ping operation
 	GetPingHandler GetPingHandler
+	// GetUsersInfoHandler sets the operation handler for the get users info operation
+	GetUsersInfoHandler GetUsersInfoHandler
+	// PostMeetCreateHandler sets the operation handler for the post meet create operation
+	PostMeetCreateHandler PostMeetCreateHandler
+	// PostUsersCreateHandler sets the operation handler for the post users create operation
+	PostUsersCreateHandler PostUsersCreateHandler
 
 	// ServeError is called when an error is received, there is a default handler
 	// but you can set your own with this
@@ -162,6 +177,15 @@ func (o *CalendarAPIAPI) Validate() error {
 
 	if o.GetPingHandler == nil {
 		unregistered = append(unregistered, "GetPingHandler")
+	}
+	if o.GetUsersInfoHandler == nil {
+		unregistered = append(unregistered, "GetUsersInfoHandler")
+	}
+	if o.PostMeetCreateHandler == nil {
+		unregistered = append(unregistered, "PostMeetCreateHandler")
+	}
+	if o.PostUsersCreateHandler == nil {
+		unregistered = append(unregistered, "PostUsersCreateHandler")
 	}
 
 	if len(unregistered) > 0 {
@@ -255,6 +279,18 @@ func (o *CalendarAPIAPI) initHandlerCache() {
 		o.handlers["GET"] = make(map[string]http.Handler)
 	}
 	o.handlers["GET"]["/ping"] = NewGetPing(o.context, o.GetPingHandler)
+	if o.handlers["GET"] == nil {
+		o.handlers["GET"] = make(map[string]http.Handler)
+	}
+	o.handlers["GET"]["/users/info"] = NewGetUsersInfo(o.context, o.GetUsersInfoHandler)
+	if o.handlers["POST"] == nil {
+		o.handlers["POST"] = make(map[string]http.Handler)
+	}
+	o.handlers["POST"]["/meet/create"] = NewPostMeetCreate(o.context, o.PostMeetCreateHandler)
+	if o.handlers["POST"] == nil {
+		o.handlers["POST"] = make(map[string]http.Handler)
+	}
+	o.handlers["POST"]["/users/create"] = NewPostUsersCreate(o.context, o.PostUsersCreateHandler)
 }
 
 // Serve creates a http handler to serve the API over HTTP

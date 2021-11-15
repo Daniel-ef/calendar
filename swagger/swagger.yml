@@ -10,16 +10,187 @@ paths:
       responses:
         200:
           description: Ok
+
   /users/create:
+    post:
+      parameters:
+        - in: body
+          name: body
+          required: true
+          schema:
+            $ref: '#/definitions/UserInfo'
+      responses:
+        200:
+          description: Ok
+          schema:
+            $ref: '#/definitions/UsersCreateResponse'
+        400:
+          description: Creation failed
+          schema:
+            $ref: '#/definitions/ErrorResponse'
+
   /users/info:
-  /users/edit:
-
-  /meet/intersection:
-
+    get:
+      parameters:
+        - in: query
+          type: string
+          name: phone
+          required: false
+        - in: query
+          type: string
+          name: email
+          required: false
+      responses:
+        200:
+          description: Ok
+          schema:
+             $ref: '#/definitions/UserInfo'
+        400:
+          description: Creation failed
+          schema:
+            $ref: '#/definitions/ErrorResponse'
+#  /users/remove:
+#
+#  /meet/intersection:
+#
   /meet/create:
-  /meet/edit:
-  /meet/info:
+    post:
+      parameters:
+        - in: body
+          name: body
+          required: true
+          schema:
+            $ref: '#/definitions/MeetInfo'
+      responses:
+        200:
+          description: Ok
+          schema:
+            $ref: '#/definitions/MeetCreateResponse'
+        400:
+          description: Creation failed
+          schema:
+            $ref: '#/definitions/ErrorResponse'
+#  /meet/info:
+#  /meet/edit:
+#
+#  /invite/accept:
+#  /invite/reject:
+#  /invite/indetermin:
+definitions:
+  ErrorResponse:
+    type: object
+    additionalProperties: false
+    properties:
+      message:
+        type: string
+    required:
+      - message
 
-  /invite/accept:
-  /invite/reject:
-  /invite/indetermin:
+  UsersCreateResponse:
+    type: object
+    additionalProperties: false
+    properties:
+      user_id:
+        type: string
+    required:
+      - user_id
+
+  UserInfo:
+    type: object
+    additionalProperties: false
+    properties:
+      user_id:
+        type: string
+      email:
+        type: string
+      phone:
+        type: string
+      first_name:
+        type: string
+      last_name:
+        type: string
+      day_start:
+        type: string
+        example: "10:00"
+      day_end:
+        type: string
+        example: "20:00"
+    required:
+      - email
+      - phone
+
+  MeetInfo:
+    type: object
+    additionalProperties: false
+    properties:
+      name:
+        type: string
+      description:
+        type: string
+      creator:
+        type: string
+      participants:
+        type: array
+        items:
+          type: string
+        minItems: 1
+      time_start:
+        type: string
+        format: date-time
+      time_end:
+        type: string
+        format: date-time
+      visibility:
+        type: string
+        enum:
+          - all
+          - participants
+      repeat:
+        type: string
+        enum:
+          - day
+          - week
+          - month
+          - year
+          - workday
+      meeting_room:
+        type: string
+      notifications:
+        type: array
+        items:
+          $ref: '#/definitions/Notification'
+      meeting_link:
+        type: string
+    required:
+      - name
+      - creator
+      - time_start
+      - time_end
+      - visibility
+
+  Notification:
+    type: object
+    additionalProperties: false
+    properties:
+      before_start:
+        description: Minutes before meeting start
+        type: integer
+      notification_type:
+        type: string
+        enum:
+          - email
+          - sms
+          - telegram
+    required:
+      - before_start
+      - notification_type
+
+  MeetCreateResponse:
+    type: object
+    additionalProperties: false
+    properties:
+      meet_id:
+        type: string
+    required:
+      - meet_id
+

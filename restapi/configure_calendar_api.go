@@ -3,14 +3,14 @@
 package restapi
 
 import (
+	"calendar/postgresql"
+	"calendar/views"
 	"crypto/tls"
 	"net/http"
 
+	"calendar/restapi/operations"
 	"github.com/go-openapi/errors"
 	"github.com/go-openapi/runtime"
-
-	"calendar/restapi/operations"
-	"calendar/views"
 )
 
 //go:generate swagger generate server --target ../../calendar --name CalendarAPI --spec ../swagger/swagger.yml --principal interface{}
@@ -20,6 +20,8 @@ func configureFlags(api *operations.CalendarAPIAPI) {
 }
 
 func configureAPI(api *operations.CalendarAPIAPI) http.Handler {
+	postgresqlClient := postgresql.GetPostgresClient()
+
 	// configure the api here
 	api.ServeError = errors.ServeError
 
@@ -38,6 +40,12 @@ func configureAPI(api *operations.CalendarAPIAPI) http.Handler {
 	api.JSONProducer = runtime.JSONProducer()
 
 	api.GetPingHandler = views.PingHandler
+
+	api.PostUsersCreateHandler = views.NewUsersCreateHandler(postgresqlClient)
+
+	api.GetUsersInfoHandler = views.NewUsersInfoHandler(postgresqlClient)
+
+	api.PostMeetCreateHandler = views.NewMeetCreateHandler(postgresqlClient)
 
 	api.PreServerShutdown = func() {}
 
