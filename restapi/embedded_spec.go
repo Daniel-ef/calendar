@@ -27,7 +27,7 @@ func init() {
     "version": "1.0.0"
   },
   "paths": {
-    "/meet/create": {
+    "/event/create": {
       "post": {
         "parameters": [
           {
@@ -35,7 +35,7 @@ func init() {
             "in": "body",
             "required": true,
             "schema": {
-              "$ref": "#/definitions/MeetInfo"
+              "$ref": "#/definitions/EventInfo"
             }
           }
         ],
@@ -43,7 +43,7 @@ func init() {
           "200": {
             "description": "Ok",
             "schema": {
-              "$ref": "#/definitions/MeetCreateResponse"
+              "$ref": "#/definitions/EventCreateResponse"
             }
           },
           "400": {
@@ -55,12 +55,12 @@ func init() {
         }
       }
     },
-    "/meet/info": {
+    "/event/info": {
       "get": {
         "parameters": [
           {
             "type": "string",
-            "name": "meeting_id",
+            "name": "event_id",
             "in": "query",
             "required": true
           }
@@ -69,7 +69,7 @@ func init() {
           "200": {
             "description": "Ok",
             "schema": {
-              "$ref": "#/definitions/MeetInfo"
+              "$ref": "#/definitions/EventInfo"
             }
           },
           "400": {
@@ -84,11 +84,73 @@ func init() {
         }
       }
     },
+    "/invitation/update": {
+      "post": {
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/InvitationUpdateRequest"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Ok"
+          },
+          "500": {
+            "description": "Update failed"
+          }
+        }
+      }
+    },
     "/ping": {
       "get": {
         "responses": {
           "200": {
             "description": "Ok"
+          }
+        }
+      }
+    },
+    "/user_events": {
+      "get": {
+        "parameters": [
+          {
+            "type": "string",
+            "name": "user_id",
+            "in": "query",
+            "required": true
+          },
+          {
+            "type": "string",
+            "format": "date-time",
+            "name": "time_start",
+            "in": "query",
+            "required": true
+          },
+          {
+            "type": "string",
+            "format": "date-time",
+            "name": "time_end",
+            "in": "query",
+            "required": true
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Ok",
+            "schema": {
+              "$ref": "#/definitions/UserEventsResponse"
+            }
+          },
+          "400": {
+            "description": "Bad request"
+          },
+          "500": {
+            "description": "Internal server error"
           }
         }
       }
@@ -153,6 +215,14 @@ func init() {
     }
   },
   "definitions": {
+    "Accepted": {
+      "type": "string",
+      "enum": [
+        "yes",
+        "no",
+        "maybe"
+      ]
+    },
     "ErrorResponse": {
       "type": "object",
       "required": [
@@ -165,19 +235,19 @@ func init() {
       },
       "additionalProperties": false
     },
-    "MeetCreateResponse": {
+    "EventCreateResponse": {
       "type": "object",
       "required": [
-        "meet_id"
+        "event_id"
       ],
       "properties": {
-        "meet_id": {
+        "event_id": {
           "type": "string"
         }
       },
       "additionalProperties": false
     },
-    "MeetInfo": {
+    "EventInfo": {
       "type": "object",
       "required": [
         "name",
@@ -193,10 +263,10 @@ func init() {
         "description": {
           "type": "string"
         },
-        "meeting_link": {
+        "event_link": {
           "type": "string"
         },
-        "meeting_room": {
+        "event_room": {
           "type": "string"
         },
         "name": {
@@ -210,9 +280,8 @@ func init() {
         },
         "participants": {
           "type": "array",
-          "minItems": 1,
           "items": {
-            "type": "string"
+            "$ref": "#/definitions/Participant"
           }
         },
         "repeat": {
@@ -239,6 +308,26 @@ func init() {
             "all",
             "participants"
           ]
+        }
+      },
+      "additionalProperties": false
+    },
+    "InvitationUpdateRequest": {
+      "type": "object",
+      "required": [
+        "user_id",
+        "event_id",
+        "accepted"
+      ],
+      "properties": {
+        "accepted": {
+          "$ref": "#/definitions/Accepted"
+        },
+        "event_id": {
+          "type": "string"
+        },
+        "user_id": {
+          "type": "string"
         }
       },
       "additionalProperties": false
@@ -275,6 +364,36 @@ func init() {
       },
       "additionalProperties": false
     },
+    "Participant": {
+      "type": "object",
+      "required": [
+        "user_id"
+      ],
+      "properties": {
+        "accepted": {
+          "$ref": "#/definitions/Accepted"
+        },
+        "user_id": {
+          "type": "string"
+        }
+      },
+      "additionalProperties": false
+    },
+    "UserEventsResponse": {
+      "type": "object",
+      "required": [
+        "event_ids"
+      ],
+      "properties": {
+        "event_ids": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        }
+      },
+      "additionalProperties": false
+    },
     "UserInfo": {
       "type": "object",
       "required": [
@@ -282,14 +401,6 @@ func init() {
         "phone"
       ],
       "properties": {
-        "day_end": {
-          "type": "string",
-          "example": "20:00"
-        },
-        "day_start": {
-          "type": "string",
-          "example": "10:00"
-        },
         "email": {
           "type": "string"
         },
@@ -304,6 +415,14 @@ func init() {
         },
         "user_id": {
           "type": "string"
+        },
+        "workday_end": {
+          "type": "string",
+          "example": "20:00"
+        },
+        "workday_start": {
+          "type": "string",
+          "example": "10:00"
         }
       },
       "additionalProperties": false
@@ -332,7 +451,7 @@ func init() {
     "version": "1.0.0"
   },
   "paths": {
-    "/meet/create": {
+    "/event/create": {
       "post": {
         "parameters": [
           {
@@ -340,7 +459,7 @@ func init() {
             "in": "body",
             "required": true,
             "schema": {
-              "$ref": "#/definitions/MeetInfo"
+              "$ref": "#/definitions/EventInfo"
             }
           }
         ],
@@ -348,7 +467,7 @@ func init() {
           "200": {
             "description": "Ok",
             "schema": {
-              "$ref": "#/definitions/MeetCreateResponse"
+              "$ref": "#/definitions/EventCreateResponse"
             }
           },
           "400": {
@@ -360,12 +479,12 @@ func init() {
         }
       }
     },
-    "/meet/info": {
+    "/event/info": {
       "get": {
         "parameters": [
           {
             "type": "string",
-            "name": "meeting_id",
+            "name": "event_id",
             "in": "query",
             "required": true
           }
@@ -374,7 +493,7 @@ func init() {
           "200": {
             "description": "Ok",
             "schema": {
-              "$ref": "#/definitions/MeetInfo"
+              "$ref": "#/definitions/EventInfo"
             }
           },
           "400": {
@@ -389,11 +508,73 @@ func init() {
         }
       }
     },
+    "/invitation/update": {
+      "post": {
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/InvitationUpdateRequest"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Ok"
+          },
+          "500": {
+            "description": "Update failed"
+          }
+        }
+      }
+    },
     "/ping": {
       "get": {
         "responses": {
           "200": {
             "description": "Ok"
+          }
+        }
+      }
+    },
+    "/user_events": {
+      "get": {
+        "parameters": [
+          {
+            "type": "string",
+            "name": "user_id",
+            "in": "query",
+            "required": true
+          },
+          {
+            "type": "string",
+            "format": "date-time",
+            "name": "time_start",
+            "in": "query",
+            "required": true
+          },
+          {
+            "type": "string",
+            "format": "date-time",
+            "name": "time_end",
+            "in": "query",
+            "required": true
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Ok",
+            "schema": {
+              "$ref": "#/definitions/UserEventsResponse"
+            }
+          },
+          "400": {
+            "description": "Bad request"
+          },
+          "500": {
+            "description": "Internal server error"
           }
         }
       }
@@ -458,6 +639,14 @@ func init() {
     }
   },
   "definitions": {
+    "Accepted": {
+      "type": "string",
+      "enum": [
+        "yes",
+        "no",
+        "maybe"
+      ]
+    },
     "ErrorResponse": {
       "type": "object",
       "required": [
@@ -470,19 +659,19 @@ func init() {
       },
       "additionalProperties": false
     },
-    "MeetCreateResponse": {
+    "EventCreateResponse": {
       "type": "object",
       "required": [
-        "meet_id"
+        "event_id"
       ],
       "properties": {
-        "meet_id": {
+        "event_id": {
           "type": "string"
         }
       },
       "additionalProperties": false
     },
-    "MeetInfo": {
+    "EventInfo": {
       "type": "object",
       "required": [
         "name",
@@ -498,10 +687,10 @@ func init() {
         "description": {
           "type": "string"
         },
-        "meeting_link": {
+        "event_link": {
           "type": "string"
         },
-        "meeting_room": {
+        "event_room": {
           "type": "string"
         },
         "name": {
@@ -515,9 +704,8 @@ func init() {
         },
         "participants": {
           "type": "array",
-          "minItems": 1,
           "items": {
-            "type": "string"
+            "$ref": "#/definitions/Participant"
           }
         },
         "repeat": {
@@ -544,6 +732,26 @@ func init() {
             "all",
             "participants"
           ]
+        }
+      },
+      "additionalProperties": false
+    },
+    "InvitationUpdateRequest": {
+      "type": "object",
+      "required": [
+        "user_id",
+        "event_id",
+        "accepted"
+      ],
+      "properties": {
+        "accepted": {
+          "$ref": "#/definitions/Accepted"
+        },
+        "event_id": {
+          "type": "string"
+        },
+        "user_id": {
+          "type": "string"
         }
       },
       "additionalProperties": false
@@ -580,6 +788,36 @@ func init() {
       },
       "additionalProperties": false
     },
+    "Participant": {
+      "type": "object",
+      "required": [
+        "user_id"
+      ],
+      "properties": {
+        "accepted": {
+          "$ref": "#/definitions/Accepted"
+        },
+        "user_id": {
+          "type": "string"
+        }
+      },
+      "additionalProperties": false
+    },
+    "UserEventsResponse": {
+      "type": "object",
+      "required": [
+        "event_ids"
+      ],
+      "properties": {
+        "event_ids": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        }
+      },
+      "additionalProperties": false
+    },
     "UserInfo": {
       "type": "object",
       "required": [
@@ -587,14 +825,6 @@ func init() {
         "phone"
       ],
       "properties": {
-        "day_end": {
-          "type": "string",
-          "example": "20:00"
-        },
-        "day_start": {
-          "type": "string",
-          "example": "10:00"
-        },
         "email": {
           "type": "string"
         },
@@ -609,6 +839,14 @@ func init() {
         },
         "user_id": {
           "type": "string"
+        },
+        "workday_end": {
+          "type": "string",
+          "example": "20:00"
+        },
+        "workday_start": {
+          "type": "string",
+          "example": "10:00"
         }
       },
       "additionalProperties": false

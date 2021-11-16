@@ -12,27 +12,27 @@ import (
 )
 
 type User struct {
-	UserId    string `db:"user_id"`
-	Email     string
-	Phone     string
-	FirstName string `db:"first_name"`
-	LastName  string `db:"last_name"`
-	DayStart  string `db:"day_start"`
-	DayEnd    string `db:"day_end"`
+	UserId       string `db:"user_id"`
+	Email        string
+	Phone        string
+	FirstName    string `db:"first_name"`
+	LastName     string `db:"last_name"`
+	WorkDayStart string `db:"workday_start"`
+	WorkDayEnd   string `db:"workday_end"`
 }
 
 func NewUsersCreateHandler(dbClient *sqlx.DB) operations.PostUsersCreateHandlerFunc {
 	return func(params operations.PostUsersCreateParams) middleware.Responder {
 		userInfo := params.Body
-		rows, err := dbClient.NamedQuery(queries.UserCreate,
+		rows, err := dbClient.NamedQuery(queries.UserInsert,
 			User{
-				UserId:    uuid.New().String(),
-				Email:     *userInfo.Email,
-				Phone:     *userInfo.Phone,
-				FirstName: userInfo.FirstName,
-				LastName:  userInfo.LastName,
-				DayStart:  userInfo.DayStart,
-				DayEnd:    userInfo.DayEnd,
+				UserId:       uuid.New().String(),
+				Email:        *userInfo.Email,
+				Phone:        *userInfo.Phone,
+				FirstName:    userInfo.FirstName,
+				LastName:     userInfo.LastName,
+				WorkDayStart: userInfo.WorkdayStart,
+				WorkDayEnd:   userInfo.WorkdayEnd,
 			},
 		)
 		if err != nil {
@@ -57,7 +57,7 @@ func NewUsersCreateHandler(dbClient *sqlx.DB) operations.PostUsersCreateHandlerF
 
 func NewUsersInfoHandler(dbClient *sqlx.DB) operations.GetUsersInfoHandlerFunc {
 	return func(params operations.GetUsersInfoParams) middleware.Responder {
-		query := queries.UserFind
+		query := queries.UserSelect
 		if params.Email == nil && params.Phone == nil ||
 			params.Email != nil && params.Phone != nil {
 			return operations.NewGetUsersInfoBadRequest()
@@ -74,13 +74,13 @@ func NewUsersInfoHandler(dbClient *sqlx.DB) operations.GetUsersInfoHandlerFunc {
 			return operations.NewGetUsersInfoBadRequest()
 		}
 		retUserInfo := models.UserInfo{
-			UserID:    user.UserId,
-			Email:     &user.Email,
-			Phone:     &user.Phone,
-			FirstName: user.FirstName,
-			LastName:  user.LastName,
-			DayStart:  user.DayStart,
-			DayEnd:    user.DayEnd,
+			UserID:       user.UserId,
+			Email:        &user.Email,
+			Phone:        &user.Phone,
+			FirstName:    user.FirstName,
+			LastName:     user.LastName,
+			WorkdayStart: user.WorkDayStart,
+			WorkdayEnd:   user.WorkDayEnd,
 		}
 		response := operations.NewGetUsersInfoOK()
 		response.SetPayload(&retUserInfo)

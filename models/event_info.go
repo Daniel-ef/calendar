@@ -16,10 +16,10 @@ import (
 	"github.com/go-openapi/validate"
 )
 
-// MeetInfo meet info
+// EventInfo event info
 //
-// swagger:model MeetInfo
-type MeetInfo struct {
+// swagger:model EventInfo
+type EventInfo struct {
 
 	// creator
 	// Required: true
@@ -28,11 +28,11 @@ type MeetInfo struct {
 	// description
 	Description string `json:"description,omitempty"`
 
-	// meeting link
-	MeetingLink string `json:"meeting_link,omitempty"`
+	// event link
+	EventLink string `json:"event_link,omitempty"`
 
-	// meeting room
-	MeetingRoom string `json:"meeting_room,omitempty"`
+	// event room
+	EventRoom string `json:"event_room,omitempty"`
 
 	// name
 	// Required: true
@@ -42,8 +42,7 @@ type MeetInfo struct {
 	Notifications []*Notification `json:"notifications"`
 
 	// participants
-	// Min Items: 1
-	Participants []string `json:"participants"`
+	Participants []*Participant `json:"participants"`
 
 	// repeat
 	// Enum: [day week month year workday]
@@ -65,8 +64,8 @@ type MeetInfo struct {
 	Visibility *string `json:"visibility"`
 }
 
-// Validate validates this meet info
-func (m *MeetInfo) Validate(formats strfmt.Registry) error {
+// Validate validates this event info
+func (m *EventInfo) Validate(formats strfmt.Registry) error {
 	var res []error
 
 	if err := m.validateCreator(formats); err != nil {
@@ -107,7 +106,7 @@ func (m *MeetInfo) Validate(formats strfmt.Registry) error {
 	return nil
 }
 
-func (m *MeetInfo) validateCreator(formats strfmt.Registry) error {
+func (m *EventInfo) validateCreator(formats strfmt.Registry) error {
 
 	if err := validate.Required("creator", "body", m.Creator); err != nil {
 		return err
@@ -116,7 +115,7 @@ func (m *MeetInfo) validateCreator(formats strfmt.Registry) error {
 	return nil
 }
 
-func (m *MeetInfo) validateName(formats strfmt.Registry) error {
+func (m *EventInfo) validateName(formats strfmt.Registry) error {
 
 	if err := validate.Required("name", "body", m.Name); err != nil {
 		return err
@@ -125,7 +124,7 @@ func (m *MeetInfo) validateName(formats strfmt.Registry) error {
 	return nil
 }
 
-func (m *MeetInfo) validateNotifications(formats strfmt.Registry) error {
+func (m *EventInfo) validateNotifications(formats strfmt.Registry) error {
 	if swag.IsZero(m.Notifications) { // not required
 		return nil
 	}
@@ -151,21 +150,33 @@ func (m *MeetInfo) validateNotifications(formats strfmt.Registry) error {
 	return nil
 }
 
-func (m *MeetInfo) validateParticipants(formats strfmt.Registry) error {
+func (m *EventInfo) validateParticipants(formats strfmt.Registry) error {
 	if swag.IsZero(m.Participants) { // not required
 		return nil
 	}
 
-	iParticipantsSize := int64(len(m.Participants))
+	for i := 0; i < len(m.Participants); i++ {
+		if swag.IsZero(m.Participants[i]) { // not required
+			continue
+		}
 
-	if err := validate.MinItems("participants", "body", iParticipantsSize, 1); err != nil {
-		return err
+		if m.Participants[i] != nil {
+			if err := m.Participants[i].Validate(formats); err != nil {
+				if ve, ok := err.(*errors.Validation); ok {
+					return ve.ValidateName("participants" + "." + strconv.Itoa(i))
+				} else if ce, ok := err.(*errors.CompositeError); ok {
+					return ce.ValidateName("participants" + "." + strconv.Itoa(i))
+				}
+				return err
+			}
+		}
+
 	}
 
 	return nil
 }
 
-var meetInfoTypeRepeatPropEnum []interface{}
+var eventInfoTypeRepeatPropEnum []interface{}
 
 func init() {
 	var res []string
@@ -173,37 +184,37 @@ func init() {
 		panic(err)
 	}
 	for _, v := range res {
-		meetInfoTypeRepeatPropEnum = append(meetInfoTypeRepeatPropEnum, v)
+		eventInfoTypeRepeatPropEnum = append(eventInfoTypeRepeatPropEnum, v)
 	}
 }
 
 const (
 
-	// MeetInfoRepeatDay captures enum value "day"
-	MeetInfoRepeatDay string = "day"
+	// EventInfoRepeatDay captures enum value "day"
+	EventInfoRepeatDay string = "day"
 
-	// MeetInfoRepeatWeek captures enum value "week"
-	MeetInfoRepeatWeek string = "week"
+	// EventInfoRepeatWeek captures enum value "week"
+	EventInfoRepeatWeek string = "week"
 
-	// MeetInfoRepeatMonth captures enum value "month"
-	MeetInfoRepeatMonth string = "month"
+	// EventInfoRepeatMonth captures enum value "month"
+	EventInfoRepeatMonth string = "month"
 
-	// MeetInfoRepeatYear captures enum value "year"
-	MeetInfoRepeatYear string = "year"
+	// EventInfoRepeatYear captures enum value "year"
+	EventInfoRepeatYear string = "year"
 
-	// MeetInfoRepeatWorkday captures enum value "workday"
-	MeetInfoRepeatWorkday string = "workday"
+	// EventInfoRepeatWorkday captures enum value "workday"
+	EventInfoRepeatWorkday string = "workday"
 )
 
 // prop value enum
-func (m *MeetInfo) validateRepeatEnum(path, location string, value string) error {
-	if err := validate.EnumCase(path, location, value, meetInfoTypeRepeatPropEnum, true); err != nil {
+func (m *EventInfo) validateRepeatEnum(path, location string, value string) error {
+	if err := validate.EnumCase(path, location, value, eventInfoTypeRepeatPropEnum, true); err != nil {
 		return err
 	}
 	return nil
 }
 
-func (m *MeetInfo) validateRepeat(formats strfmt.Registry) error {
+func (m *EventInfo) validateRepeat(formats strfmt.Registry) error {
 	if swag.IsZero(m.Repeat) { // not required
 		return nil
 	}
@@ -216,7 +227,7 @@ func (m *MeetInfo) validateRepeat(formats strfmt.Registry) error {
 	return nil
 }
 
-func (m *MeetInfo) validateTimeEnd(formats strfmt.Registry) error {
+func (m *EventInfo) validateTimeEnd(formats strfmt.Registry) error {
 
 	if err := validate.Required("time_end", "body", m.TimeEnd); err != nil {
 		return err
@@ -229,7 +240,7 @@ func (m *MeetInfo) validateTimeEnd(formats strfmt.Registry) error {
 	return nil
 }
 
-func (m *MeetInfo) validateTimeStart(formats strfmt.Registry) error {
+func (m *EventInfo) validateTimeStart(formats strfmt.Registry) error {
 
 	if err := validate.Required("time_start", "body", m.TimeStart); err != nil {
 		return err
@@ -242,7 +253,7 @@ func (m *MeetInfo) validateTimeStart(formats strfmt.Registry) error {
 	return nil
 }
 
-var meetInfoTypeVisibilityPropEnum []interface{}
+var eventInfoTypeVisibilityPropEnum []interface{}
 
 func init() {
 	var res []string
@@ -250,28 +261,28 @@ func init() {
 		panic(err)
 	}
 	for _, v := range res {
-		meetInfoTypeVisibilityPropEnum = append(meetInfoTypeVisibilityPropEnum, v)
+		eventInfoTypeVisibilityPropEnum = append(eventInfoTypeVisibilityPropEnum, v)
 	}
 }
 
 const (
 
-	// MeetInfoVisibilityAll captures enum value "all"
-	MeetInfoVisibilityAll string = "all"
+	// EventInfoVisibilityAll captures enum value "all"
+	EventInfoVisibilityAll string = "all"
 
-	// MeetInfoVisibilityParticipants captures enum value "participants"
-	MeetInfoVisibilityParticipants string = "participants"
+	// EventInfoVisibilityParticipants captures enum value "participants"
+	EventInfoVisibilityParticipants string = "participants"
 )
 
 // prop value enum
-func (m *MeetInfo) validateVisibilityEnum(path, location string, value string) error {
-	if err := validate.EnumCase(path, location, value, meetInfoTypeVisibilityPropEnum, true); err != nil {
+func (m *EventInfo) validateVisibilityEnum(path, location string, value string) error {
+	if err := validate.EnumCase(path, location, value, eventInfoTypeVisibilityPropEnum, true); err != nil {
 		return err
 	}
 	return nil
 }
 
-func (m *MeetInfo) validateVisibility(formats strfmt.Registry) error {
+func (m *EventInfo) validateVisibility(formats strfmt.Registry) error {
 
 	if err := validate.Required("visibility", "body", m.Visibility); err != nil {
 		return err
@@ -285,11 +296,15 @@ func (m *MeetInfo) validateVisibility(formats strfmt.Registry) error {
 	return nil
 }
 
-// ContextValidate validate this meet info based on the context it is used
-func (m *MeetInfo) ContextValidate(ctx context.Context, formats strfmt.Registry) error {
+// ContextValidate validate this event info based on the context it is used
+func (m *EventInfo) ContextValidate(ctx context.Context, formats strfmt.Registry) error {
 	var res []error
 
 	if err := m.contextValidateNotifications(ctx, formats); err != nil {
+		res = append(res, err)
+	}
+
+	if err := m.contextValidateParticipants(ctx, formats); err != nil {
 		res = append(res, err)
 	}
 
@@ -299,7 +314,7 @@ func (m *MeetInfo) ContextValidate(ctx context.Context, formats strfmt.Registry)
 	return nil
 }
 
-func (m *MeetInfo) contextValidateNotifications(ctx context.Context, formats strfmt.Registry) error {
+func (m *EventInfo) contextValidateNotifications(ctx context.Context, formats strfmt.Registry) error {
 
 	for i := 0; i < len(m.Notifications); i++ {
 
@@ -319,8 +334,28 @@ func (m *MeetInfo) contextValidateNotifications(ctx context.Context, formats str
 	return nil
 }
 
+func (m *EventInfo) contextValidateParticipants(ctx context.Context, formats strfmt.Registry) error {
+
+	for i := 0; i < len(m.Participants); i++ {
+
+		if m.Participants[i] != nil {
+			if err := m.Participants[i].ContextValidate(ctx, formats); err != nil {
+				if ve, ok := err.(*errors.Validation); ok {
+					return ve.ValidateName("participants" + "." + strconv.Itoa(i))
+				} else if ce, ok := err.(*errors.CompositeError); ok {
+					return ce.ValidateName("participants" + "." + strconv.Itoa(i))
+				}
+				return err
+			}
+		}
+
+	}
+
+	return nil
+}
+
 // MarshalBinary interface implementation
-func (m *MeetInfo) MarshalBinary() ([]byte, error) {
+func (m *EventInfo) MarshalBinary() ([]byte, error) {
 	if m == nil {
 		return nil, nil
 	}
@@ -328,8 +363,8 @@ func (m *MeetInfo) MarshalBinary() ([]byte, error) {
 }
 
 // UnmarshalBinary interface implementation
-func (m *MeetInfo) UnmarshalBinary(b []byte) error {
-	var res MeetInfo
+func (m *EventInfo) UnmarshalBinary(b []byte) error {
+	var res EventInfo
 	if err := swag.ReadJSON(b, &res); err != nil {
 		return err
 	}

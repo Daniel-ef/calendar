@@ -45,9 +45,13 @@ func configureAPI(api *operations.CalendarAPIAPI) http.Handler {
 
 	api.GetUsersInfoHandler = views.NewUsersInfoHandler(postgresqlClient)
 
-	api.PostMeetCreateHandler = views.NewMeetCreateHandler(postgresqlClient)
+	api.PostEventCreateHandler = views.NewEventCreateHandler(postgresqlClient)
 
-	api.GetMeetInfoHandler = views.NewMeetInfoHandler(postgresqlClient)
+	api.GetEventInfoHandler = views.NewEventInfoHandler(postgresqlClient)
+
+	api.PostInvitationUpdateHandler = views.NewInvitationUpdateHandler(postgresqlClient)
+
+	api.GetUserEventsHandler = views.NewUserEventsHandler(postgresqlClient)
 
 	api.PreServerShutdown = func() {}
 

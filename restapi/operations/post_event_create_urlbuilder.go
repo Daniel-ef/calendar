@@ -11,19 +11,15 @@ import (
 	golangswaggerpaths "path"
 )
 
-// GetMeetInfoURL generates an URL for the get meet info operation
-type GetMeetInfoURL struct {
-	MeetingID string
-
+// PostEventCreateURL generates an URL for the post event create operation
+type PostEventCreateURL struct {
 	_basePath string
-	// avoid unkeyed usage
-	_ struct{}
 }
 
 // WithBasePath sets the base path for this url builder, only required when it's different from the
 // base path specified in the swagger spec.
 // When the value of the base path is an empty string
-func (o *GetMeetInfoURL) WithBasePath(bp string) *GetMeetInfoURL {
+func (o *PostEventCreateURL) WithBasePath(bp string) *PostEventCreateURL {
 	o.SetBasePath(bp)
 	return o
 }
@@ -31,33 +27,24 @@ func (o *GetMeetInfoURL) WithBasePath(bp string) *GetMeetInfoURL {
 // SetBasePath sets the base path for this url builder, only required when it's different from the
 // base path specified in the swagger spec.
 // When the value of the base path is an empty string
-func (o *GetMeetInfoURL) SetBasePath(bp string) {
+func (o *PostEventCreateURL) SetBasePath(bp string) {
 	o._basePath = bp
 }
 
 // Build a url path and query string
-func (o *GetMeetInfoURL) Build() (*url.URL, error) {
+func (o *PostEventCreateURL) Build() (*url.URL, error) {
 	var _result url.URL
 
-	var _path = "/meet/info"
+	var _path = "/event/create"
 
 	_basePath := o._basePath
 	_result.Path = golangswaggerpaths.Join(_basePath, _path)
-
-	qs := make(url.Values)
-
-	meetingIDQ := o.MeetingID
-	if meetingIDQ != "" {
-		qs.Set("meeting_id", meetingIDQ)
-	}
-
-	_result.RawQuery = qs.Encode()
 
 	return &_result, nil
 }
 
 // Must is a helper function to panic when the url builder returns an error
-func (o *GetMeetInfoURL) Must(u *url.URL, err error) *url.URL {
+func (o *PostEventCreateURL) Must(u *url.URL, err error) *url.URL {
 	if err != nil {
 		panic(err)
 	}
@@ -68,17 +55,17 @@ func (o *GetMeetInfoURL) Must(u *url.URL, err error) *url.URL {
 }
 
 // String returns the string representation of the path with query string
-func (o *GetMeetInfoURL) String() string {
+func (o *PostEventCreateURL) String() string {
 	return o.Must(o.Build()).String()
 }
 
 // BuildFull builds a full url with scheme, host, path and query string
-func (o *GetMeetInfoURL) BuildFull(scheme, host string) (*url.URL, error) {
+func (o *PostEventCreateURL) BuildFull(scheme, host string) (*url.URL, error) {
 	if scheme == "" {
-		return nil, errors.New("scheme is required for a full url on GetMeetInfoURL")
+		return nil, errors.New("scheme is required for a full url on PostEventCreateURL")
 	}
 	if host == "" {
-		return nil, errors.New("host is required for a full url on GetMeetInfoURL")
+		return nil, errors.New("host is required for a full url on PostEventCreateURL")
 	}
 
 	base, err := o.Build()
@@ -92,6 +79,6 @@ func (o *GetMeetInfoURL) BuildFull(scheme, host string) (*url.URL, error) {
 }
 
 // StringFull returns the string representation of a complete url
-func (o *GetMeetInfoURL) StringFull(scheme, host string) string {
+func (o *PostEventCreateURL) StringFull(scheme, host string) string {
 	return o.Must(o.BuildFull(scheme, host)).String()
 }

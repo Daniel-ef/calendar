@@ -14,23 +14,21 @@ CREATE TYPE calendar.accepted_t AS ENUM('yes', 'no', 'maybe');
 
 CREATE TABLE calendar.users(
     user_id text PRIMARY KEY,
-    email text NOT NULL,
-    phone text NOT NULL,
+    email text NOT NULL UNIQUE,
+    phone text NOT NULL UNIQUE,
     first_name text,
     last_name text,
-    day_start time NOT NULL,
-    day_end time NOT NULL
+    workday_start time NOT NULL,
+    workday_end time NOT NULL
 );
-CREATE UNIQUE INDEX users_email_idx ON calendar.users(email);
-CREATE UNIQUE INDEX users_phone_idx ON calendar.users(phone);
 
-CREATE TABLE calendar.meeting_rooms(
+CREATE TABLE calendar.event_rooms(
    room_id text PRIMARY KEY,
    name text NOT NULL
 );
 
-CREATE TABLE calendar.meetings(
-    meet_id text PRIMARY KEY,
+CREATE TABLE calendar.events(
+    event_id text PRIMARY KEY,
     name text NOT NULL,
     description text,
     version bigserial NOT NULL,
@@ -39,20 +37,21 @@ CREATE TABLE calendar.meetings(
     time_start timestamptz NOT NULL,
     time_end timestamptz NOT NULL,
     -- whole_day
-    meeting_room text REFERENCES meeting_rooms,
-    meeting_link text
+    event_room text REFERENCES event_rooms,
+    event_link text
 );
-CREATE INDEX meetings_time_start_idx ON calendar.meetings(time_start);
+CREATE INDEX events_time_start_idx ON calendar.events(time_start);
 
 CREATE TABLE calendar.notifications (
-    meet_id text REFERENCES meetings,
-    before_start int,
-    step notification_step_t,
-    method notification_method_t
+    event_id text REFERENCES events,
+    before_start int NOT NULL,
+    step notification_step_t NOT NULL,
+    method notification_method_t NOT NULL
     );
 
 CREATE TABLE calendar.invitations (
-    meet_id text REFERENCES meetings,
+    event_id text REFERENCES events,
     user_id text REFERENCES users,
     accepted accepted_t
 );
+CREATE UNIQUE INDEX invitations_event_user_idx ON invitations(event_id, user_id);

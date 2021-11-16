@@ -51,45 +51,86 @@ paths:
             $ref: '#/definitions/ErrorResponse'
 #  /users/remove:
 #
-#  /meet/intersection:
+#  /event/intersection:
 #
-  /meet/create:
+  /event/create:
     post:
       parameters:
         - in: body
           name: body
           required: true
           schema:
-            $ref: '#/definitions/MeetInfo'
+            $ref: '#/definitions/EventInfo'
       responses:
         200:
           description: Ok
           schema:
-            $ref: '#/definitions/MeetCreateResponse'
+            $ref: '#/definitions/EventCreateResponse'
         400:
           description: Creation failed
           schema:
             $ref: '#/definitions/ErrorResponse'
-  /meet/info:
+  /event/info:
     get:
       parameters:
         - in: query
           type: string
-          name: meeting_id
+          name: event_id
           required: true
       responses:
         200:
           description: Ok
           schema:
-            $ref: '#/definitions/MeetInfo'
+            $ref: '#/definitions/EventInfo'
         400:
           description: Creation failed
           schema:
             $ref: '#/definitions/ErrorResponse'
         404:
           description: Not found
-#  /meet/edit:
-#
+#  /event/edit:
+
+  /user_events:
+    get:
+      parameters:
+        - in: query
+          type: string
+          name: user_id
+          required: true
+        - in: query
+          type: string
+          format: date-time
+          name: time_start
+          required: true
+        - in: query
+          type: string
+          format: date-time
+          name: time_end
+          required: true
+      responses:
+        200:
+          description: Ok
+          schema:
+            $ref: '#/definitions/UserEventsResponse'
+        400:
+          description: Bad request
+        500:
+          description: Internal server error
+
+  /invitation/update:
+    post:
+      parameters:
+        - in: body
+          name: body
+          required: true
+          schema:
+            $ref: '#/definitions/InvitationUpdateRequest'
+      responses:
+        200:
+          description: Ok
+        500:
+          description: Update failed
+
 #  /invite/accept:
 #  /invite/reject:
 #  /invite/indetermin:
@@ -126,17 +167,35 @@ definitions:
         type: string
       last_name:
         type: string
-      day_start:
+      workday_start:
         type: string
         example: "10:00"
-      day_end:
+      workday_end:
         type: string
         example: "20:00"
     required:
       - email
       - phone
 
-  MeetInfo:
+  Accepted:
+    type: string
+    enum:
+      - 'yes'
+      - 'no'
+      - 'maybe'
+
+  Participant:
+    type: object
+    additionalProperties: false
+    properties:
+      user_id:
+        type: string
+      accepted:
+        $ref: '#/definitions/Accepted'
+    required:
+      - user_id
+
+  EventInfo:
     type: object
     additionalProperties: false
     properties:
@@ -149,8 +208,7 @@ definitions:
       participants:
         type: array
         items:
-          type: string
-        minItems: 1
+          $ref: '#/definitions/Participant'
       time_start:
         type: string
         format: date-time
@@ -170,13 +228,13 @@ definitions:
           - month
           - year
           - workday
-      meeting_room:
+      event_room:
         type: string
       notifications:
         type: array
         items:
           $ref: '#/definitions/Notification'
-      meeting_link:
+      event_link:
         type: string
     required:
       - name
@@ -210,12 +268,38 @@ definitions:
       - step
       - method
 
-  MeetCreateResponse:
+  EventCreateResponse:
     type: object
     additionalProperties: false
     properties:
-      meet_id:
+      event_id:
         type: string
     required:
-      - meet_id
+      - event_id
+
+  InvitationUpdateRequest:
+    type: object
+    additionalProperties: false
+    properties:
+      user_id:
+        type: string
+      event_id:
+        type: string
+      accepted:
+        $ref: '#/definitions/Accepted'
+    required:
+      - user_id
+      - event_id
+      - accepted
+
+  UserEventsResponse:
+    type: object
+    additionalProperties: false
+    properties:
+      event_ids:
+        type: array
+        items:
+          type: string
+    required:
+      - event_ids
 

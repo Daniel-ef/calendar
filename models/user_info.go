@@ -19,14 +19,6 @@ import (
 // swagger:model UserInfo
 type UserInfo struct {
 
-	// day end
-	// Example: 20:00
-	DayEnd string `json:"day_end,omitempty"`
-
-	// day start
-	// Example: 10:00
-	DayStart string `json:"day_start,omitempty"`
-
 	// email
 	// Required: true
 	Email *string `json:"email"`
@@ -43,6 +35,14 @@ type UserInfo struct {
 
 	// user id
 	UserID string `json:"user_id,omitempty"`
+
+	// workday end
+	// Example: 20:00
+	WorkdayEnd string `json:"workday_end,omitempty"`
+
+	// workday start
+	// Example: 10:00
+	WorkdayStart string `json:"workday_start,omitempty"`
 }
 
 // Validate validates this user info

@@ -15,19 +15,19 @@ import (
 	"github.com/go-openapi/validate"
 )
 
-// NewGetMeetInfoParams creates a new GetMeetInfoParams object
+// NewGetEventInfoParams creates a new GetEventInfoParams object
 //
 // There are no default values defined in the spec.
-func NewGetMeetInfoParams() GetMeetInfoParams {
+func NewGetEventInfoParams() GetEventInfoParams {
 
-	return GetMeetInfoParams{}
+	return GetEventInfoParams{}
 }
 
-// GetMeetInfoParams contains all the bound params for the get meet info operation
+// GetEventInfoParams contains all the bound params for the get event info operation
 // typically these are obtained from a http.Request
 //
-// swagger:parameters GetMeetInfo
-type GetMeetInfoParams struct {
+// swagger:parameters GetEventInfo
+type GetEventInfoParams struct {
 
 	// HTTP Request Object
 	HTTPRequest *http.Request `json:"-"`
@@ -36,22 +36,22 @@ type GetMeetInfoParams struct {
 	  Required: true
 	  In: query
 	*/
-	MeetingID string
+	EventID string
 }
 
 // BindRequest both binds and validates a request, it assumes that complex things implement a Validatable(strfmt.Registry) error interface
 // for simple values it will use straight method calls.
 //
-// To ensure default values, the struct must have been initialized with NewGetMeetInfoParams() beforehand.
-func (o *GetMeetInfoParams) BindRequest(r *http.Request, route *middleware.MatchedRoute) error {
+// To ensure default values, the struct must have been initialized with NewGetEventInfoParams() beforehand.
+func (o *GetEventInfoParams) BindRequest(r *http.Request, route *middleware.MatchedRoute) error {
 	var res []error
 
 	o.HTTPRequest = r
 
 	qs := runtime.Values(r.URL.Query())
 
-	qMeetingID, qhkMeetingID, _ := qs.GetOK("meeting_id")
-	if err := o.bindMeetingID(qMeetingID, qhkMeetingID, route.Formats); err != nil {
+	qEventID, qhkEventID, _ := qs.GetOK("event_id")
+	if err := o.bindEventID(qEventID, qhkEventID, route.Formats); err != nil {
 		res = append(res, err)
 	}
 	if len(res) > 0 {
@@ -60,10 +60,10 @@ func (o *GetMeetInfoParams) BindRequest(r *http.Request, route *middleware.Match
 	return nil
 }
 
-// bindMeetingID binds and validates parameter MeetingID from query.
-func (o *GetMeetInfoParams) bindMeetingID(rawData []string, hasKey bool, formats strfmt.Registry) error {
+// bindEventID binds and validates parameter EventID from query.
+func (o *GetEventInfoParams) bindEventID(rawData []string, hasKey bool, formats strfmt.Registry) error {
 	if !hasKey {
-		return errors.Required("meeting_id", "query", rawData)
+		return errors.Required("event_id", "query", rawData)
 	}
 	var raw string
 	if len(rawData) > 0 {
@@ -73,10 +73,10 @@ func (o *GetMeetInfoParams) bindMeetingID(rawData []string, hasKey bool, formats
 	// Required: true
 	// AllowEmptyValue: false
 
-	if err := validate.RequiredString("meeting_id", "query", raw); err != nil {
+	if err := validate.RequiredString("event_id", "query", raw); err != nil {
 		return err
 	}
-	o.MeetingID = raw
+	o.EventID = raw
 
 	return nil
 }

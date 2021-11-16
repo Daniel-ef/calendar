@@ -42,17 +42,23 @@ func NewCalendarAPIAPI(spec *loads.Document) *CalendarAPIAPI {
 
 		JSONProducer: runtime.JSONProducer(),
 
-		GetMeetInfoHandler: GetMeetInfoHandlerFunc(func(params GetMeetInfoParams) middleware.Responder {
-			return middleware.NotImplemented("operation GetMeetInfo has not yet been implemented")
+		GetEventInfoHandler: GetEventInfoHandlerFunc(func(params GetEventInfoParams) middleware.Responder {
+			return middleware.NotImplemented("operation GetEventInfo has not yet been implemented")
 		}),
 		GetPingHandler: GetPingHandlerFunc(func(params GetPingParams) middleware.Responder {
 			return middleware.NotImplemented("operation GetPing has not yet been implemented")
 		}),
+		GetUserEventsHandler: GetUserEventsHandlerFunc(func(params GetUserEventsParams) middleware.Responder {
+			return middleware.NotImplemented("operation GetUserEvents has not yet been implemented")
+		}),
 		GetUsersInfoHandler: GetUsersInfoHandlerFunc(func(params GetUsersInfoParams) middleware.Responder {
 			return middleware.NotImplemented("operation GetUsersInfo has not yet been implemented")
 		}),
-		PostMeetCreateHandler: PostMeetCreateHandlerFunc(func(params PostMeetCreateParams) middleware.Responder {
-			return middleware.NotImplemented("operation PostMeetCreate has not yet been implemented")
+		PostEventCreateHandler: PostEventCreateHandlerFunc(func(params PostEventCreateParams) middleware.Responder {
+			return middleware.NotImplemented("operation PostEventCreate has not yet been implemented")
+		}),
+		PostInvitationUpdateHandler: PostInvitationUpdateHandlerFunc(func(params PostInvitationUpdateParams) middleware.Responder {
+			return middleware.NotImplemented("operation PostInvitationUpdate has not yet been implemented")
 		}),
 		PostUsersCreateHandler: PostUsersCreateHandlerFunc(func(params PostUsersCreateParams) middleware.Responder {
 			return middleware.NotImplemented("operation PostUsersCreate has not yet been implemented")
@@ -93,14 +99,18 @@ type CalendarAPIAPI struct {
 	//   - application/json
 	JSONProducer runtime.Producer
 
-	// GetMeetInfoHandler sets the operation handler for the get meet info operation
-	GetMeetInfoHandler GetMeetInfoHandler
+	// GetEventInfoHandler sets the operation handler for the get event info operation
+	GetEventInfoHandler GetEventInfoHandler
 	// GetPingHandler sets the operation handler for the get ping operation
 	GetPingHandler GetPingHandler
+	// GetUserEventsHandler sets the operation handler for the get user events operation
+	GetUserEventsHandler GetUserEventsHandler
 	// GetUsersInfoHandler sets the operation handler for the get users info operation
 	GetUsersInfoHandler GetUsersInfoHandler
-	// PostMeetCreateHandler sets the operation handler for the post meet create operation
-	PostMeetCreateHandler PostMeetCreateHandler
+	// PostEventCreateHandler sets the operation handler for the post event create operation
+	PostEventCreateHandler PostEventCreateHandler
+	// PostInvitationUpdateHandler sets the operation handler for the post invitation update operation
+	PostInvitationUpdateHandler PostInvitationUpdateHandler
 	// PostUsersCreateHandler sets the operation handler for the post users create operation
 	PostUsersCreateHandler PostUsersCreateHandler
 
@@ -180,17 +190,23 @@ func (o *CalendarAPIAPI) Validate() error {
 		unregistered = append(unregistered, "JSONProducer")
 	}
 
-	if o.GetMeetInfoHandler == nil {
-		unregistered = append(unregistered, "GetMeetInfoHandler")
+	if o.GetEventInfoHandler == nil {
+		unregistered = append(unregistered, "GetEventInfoHandler")
 	}
 	if o.GetPingHandler == nil {
 		unregistered = append(unregistered, "GetPingHandler")
 	}
+	if o.GetUserEventsHandler == nil {
+		unregistered = append(unregistered, "GetUserEventsHandler")
+	}
 	if o.GetUsersInfoHandler == nil {
 		unregistered = append(unregistered, "GetUsersInfoHandler")
 	}
-	if o.PostMeetCreateHandler == nil {
-		unregistered = append(unregistered, "PostMeetCreateHandler")
+	if o.PostEventCreateHandler == nil {
+		unregistered = append(unregistered, "PostEventCreateHandler")
+	}
+	if o.PostInvitationUpdateHandler == nil {
+		unregistered = append(unregistered, "PostInvitationUpdateHandler")
 	}
 	if o.PostUsersCreateHandler == nil {
 		unregistered = append(unregistered, "PostUsersCreateHandler")
@@ -286,7 +302,7 @@ func (o *CalendarAPIAPI) initHandlerCache() {
 	if o.handlers["GET"] == nil {
 		o.handlers["GET"] = make(map[string]http.Handler)
 	}
-	o.handlers["GET"]["/meet/info"] = NewGetMeetInfo(o.context, o.GetMeetInfoHandler)
+	o.handlers["GET"]["/event/info"] = NewGetEventInfo(o.context, o.GetEventInfoHandler)
 	if o.handlers["GET"] == nil {
 		o.handlers["GET"] = make(map[string]http.Handler)
 	}
@@ -294,11 +310,19 @@ func (o *CalendarAPIAPI) initHandlerCache() {
 	if o.handlers["GET"] == nil {
 		o.handlers["GET"] = make(map[string]http.Handler)
 	}
+	o.handlers["GET"]["/user_events"] = NewGetUserEvents(o.context, o.GetUserEventsHandler)
+	if o.handlers["GET"] == nil {
+		o.handlers["GET"] = make(map[string]http.Handler)
+	}
 	o.handlers["GET"]["/users/info"] = NewGetUsersInfo(o.context, o.GetUsersInfoHandler)
 	if o.handlers["POST"] == nil {
 		o.handlers["POST"] = make(map[string]http.Handler)
 	}
-	o.handlers["POST"]["/meet/create"] = NewPostMeetCreate(o.context, o.PostMeetCreateHandler)
+	o.handlers["POST"]["/event/create"] = NewPostEventCreate(o.context, o.PostEventCreateHandler)
+	if o.handlers["POST"] == nil {
+		o.handlers["POST"] = make(map[string]http.Handler)
+	}
+	o.handlers["POST"]["/invitation/update"] = NewPostInvitationUpdate(o.context, o.PostInvitationUpdateHandler)
 	if o.handlers["POST"] == nil {
 		o.handlers["POST"] = make(map[string]http.Handler)
 	}
