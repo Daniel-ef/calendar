@@ -7,9 +7,10 @@ const EventCreate = `INSERT INTO calendar.events(
 	creator,
 	time_start,
 	time_end,
+	repeat,
 	event_room,
 	event_link
-) VALUES($1, $2, $3, $4, $5, $6, $7, $8)
+) VALUES($1, $2, $3, $4, $5, $6, $7, $8, &9)
 RETURNING event_id;
 `
 

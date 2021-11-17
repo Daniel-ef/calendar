@@ -86,6 +86,7 @@ func NewEventCreateHandler(dbClient *sqlx.DB) operations.PostEventCreateHandlerF
 			event.Creator,
 			event.TimeStart,
 			event.TimeEnd,
+			event.Repeat,
 			event.EventRoom,
 			event.EventLink,
 		)

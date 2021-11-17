@@ -224,10 +224,10 @@ definitions:
         type: string
         enum:
           - day
+          - workday
           - week
           - month
           - year
-          - workday
       event_room:
         type: string
       notifications:

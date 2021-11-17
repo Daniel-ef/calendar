@@ -4,10 +4,20 @@ import (
 	"calendar/models"
 	"calendar/postgresql/queries"
 	"calendar/restapi/operations"
+	"calendar/utils"
 	"github.com/go-openapi/runtime/middleware"
+	"github.com/go-openapi/strfmt"
 	"github.com/jmoiron/sqlx"
 	"log"
+	"time"
 )
+
+type EventMeta struct {
+	eventId    string
+	timeStart  strfmt.DateTime
+	timeEnd    strfmt.DateTime
+	repeatType string
+}
 
 func NewUserEventsHandler(dbClient *sqlx.DB) operations.GetUserEventsHandlerFunc {
 	return func(params operations.GetUserEventsParams) middleware.Responder {
@@ -19,12 +29,18 @@ func NewUserEventsHandler(dbClient *sqlx.DB) operations.GetUserEventsHandlerFunc
 		}
 		response := models.UserEventsResponse{}
 		for rows.Next() {
-			var eventId string
-			if err := rows.Scan(&eventId); err != nil {
+			var eventMeta EventMeta
+			if err := rows.Scan(
+				&eventMeta.eventId, &eventMeta.timeStart,
+				&eventMeta.timeEnd, &eventMeta.repeatType,
+			); err != nil {
 				log.Print("Error while scanning user_id: ", err.Error())
 				return operations.NewGetUserEventsInternalServerError()
 			}
-			response.EventIds = append(response.EventIds, eventId)
+			if utils.CheckEvent(time.Time(eventMeta.timeStart), time.Time(eventMeta.timeEnd),
+				time.Time(params.TimeStart), time.Time(params.TimeEnd), eventMeta.repeatType) {
+				response.EventIds = append(response.EventIds, eventMeta.eventId)
+			}
 		}
 		return &operations.GetUserEventsOK{Payload: &response}
 	}

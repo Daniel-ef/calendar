@@ -12,6 +12,8 @@ CREATE TYPE calendar.notification_step_t as ENUM('m', 'h', 'd', 'w');
 
 CREATE TYPE calendar.accepted_t AS ENUM('yes', 'no', 'maybe');
 
+CREATE TYPE calendar.repeat_t AS ENUM('day', 'workday', 'week', 'month', 'year')
+
 CREATE TABLE calendar.users(
     user_id text PRIMARY KEY,
     email text NOT NULL UNIQUE,
@@ -36,6 +38,7 @@ CREATE TABLE calendar.events(
     creator text REFERENCES users,
     time_start timestamptz NOT NULL,
     time_end timestamptz NOT NULL,
+    repeat repeat_t,
     -- whole_day
     event_room text REFERENCES event_rooms,
     event_link text
