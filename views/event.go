@@ -4,7 +4,6 @@ import (
 	"calendar/models"
 	"calendar/postgresql/queries"
 	"calendar/restapi/operations"
-	"database/sql/driver"
 	"encoding/json"
 	"errors"
 	"github.com/go-openapi/runtime/middleware"
@@ -15,22 +14,23 @@ import (
 	"log"
 )
 
-//type Notification struct {
-//	before_start      int64
-//	notification_type string
-//}
-//
-//func (n *Notification) Value() (driver.Value, error) {
-//	return fmt.Sprintf("('%d','%s')", n.before_start, n.notification_type), nil
-//}
+type Notification struct {
+	BeforeStart int64  `json:"before_start,omitempty"`
+	Step        string `json:"step,omitempty"`
+	Method      string `json:"method,omitempty"`
+}
+
+func (a *Notification) Scan(value interface{}) error {
+	b, ok := value.([]byte)
+	if !ok {
+		return errors.New("type assertion to []byte failed")
+	}
+	return json.Unmarshal(b, &a)
+}
 
 type Participant struct {
 	UserId   string `json:"user_id,omitempty"`
 	Accepted string `json:"accepted,omitempty"`
-}
-
-func (a Participant) Value() (driver.Value, error) {
-	return json.Marshal(a)
 }
 
 func (a *Participant) Scan(value interface{}) error {
@@ -56,24 +56,21 @@ func GetUserIds(participants []*models.Participant, creator_id string) (userIds 
 
 func MakeParticipants(participants []Participant) []*models.Participant {
 	response := []*models.Participant{}
-	for _, participant := range participants {
-		response = append(response, &models.Participant{UserID: &participant.UserId,
-			Accepted: models.Accepted(participant.Accepted)})
+	for i := range participants {
+		response = append(response, &models.Participant{UserID: &participants[i].UserId,
+			Accepted: models.Accepted(participants[i].Accepted)})
 	}
 	return response
 }
 
-func MakeNotifications(starts pq.Int64Array, steps pq.StringArray,
-	methods pq.StringArray) (ret []*models.Notification) {
-	if !(len(starts) == len(steps) && len(steps) == len(methods)) {
-		log.Println("Invalid data in notifications")
-		return ret
+func MakeNotifications(notifications []Notification) []*models.Notification {
+	response := []*models.Notification{}
+	for i := range notifications {
+		rNotification := models.Notification{BeforeStart: &notifications[i].BeforeStart,
+			Step: &notifications[i].Step, Method: &notifications[i].Method}
+		response = append(response, &rNotification)
 	}
-	for i := range starts {
-		ret = append(ret, &models.Notification{
-			BeforeStart: &starts[i], Method: &steps[i], Step: &methods[i]})
-	}
-	return
+	return response
 }
 
 func NewEventCreateHandler(dbClient *sqlx.DB) operations.PostEventCreateHandlerFunc {
@@ -160,21 +157,18 @@ func NewEventInfoHandler(dbClient *sqlx.DB) operations.GetEventInfoHandlerFunc {
 		response.Creator = new(string)
 		response.TimeStart = new(strfmt.DateTime)
 		response.TimeEnd = new(strfmt.DateTime)
-		beforeStarts := pq.Int64Array{}
-		steps := pq.StringArray{}
-		methods := pq.StringArray{}
 
 		participants := []Participant{}
+		notifications := []Notification{}
 		if err := rows.Scan(&response.Name, &response.Description, &response.Visibility,
 			&response.Creator, &response.TimeStart, &response.TimeEnd, &response.EventRoom,
-			&response.EventLink, pq.Array(&participants),
-			&beforeStarts, &steps, &methods); err != nil {
+			&response.EventLink, pq.Array(&participants), pq.Array(&notifications),
+		); err != nil {
 			log.Print("Error while fetching event: ", err.Error())
 			return operations.NewGetEventInfoBadRequest()
 		}
-		log.Println(participants)
 		response.Participants = MakeParticipants(participants)
-		response.Notifications = MakeNotifications(beforeStarts, steps, methods)
+		response.Notifications = MakeNotifications(notifications)
 
 		return &operations.GetEventInfoOK{Payload: &response}
 	}

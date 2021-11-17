@@ -28,15 +28,16 @@ const InvitationsInsert = `INSERT INTO calendar.invitations(
 const EventInfoSelect = `
 SELECT name, description, visibility,creator, 
 	time_start, time_end, event_room, event_link,
-	array_agg(JSON_BUILD_OBJECT('user_id', i.user_id, 'accepted', i.accepted::text))::jsonb[] as participants,
-	array_agg(n.before_start)::int[] as before_starts,
-	array_agg(n.step)::text[] as steps, 
-	array_agg(n.method)::text[] as methods 
+	array_agg(JSON_BUILD_OBJECT(
+		'user_id', i.user_id, 'accepted', i.accepted::text))::jsonb[] 
+	as participants,
+	array_agg(JSON_BUILD_OBJECT(
+		'before_start', n.before_start, 'step', n.step, 'method', n.method)) as notifications
 FROM calendar.events as m
 INNER JOIN calendar.invitations as i 
-ON m.event_id = i.event_id 
+	ON m.event_id = i.event_id 
 JOIN calendar.notifications as n
-ON m.event_id = n.event_id
-WHERE m.event_id = $1 
+	ON n.event_id = m.event_id
+WHERE m.event_id = 'event_id1'
 GROUP BY m.event_id;
 `
