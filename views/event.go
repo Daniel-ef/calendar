@@ -154,7 +154,8 @@ func NewEventCreateHandler(dbClient *sqlx.DB) operations.PostEventCreateHandlerF
 
 func NewEventInfoHandler(dbClient *sqlx.DB) operations.GetEventInfoHandlerFunc {
 	return func(params operations.GetEventInfoParams) middleware.Responder {
-		rows, err := dbClient.Query(queries.EventSelect, params.EventID)
+		trx, err := dbClient.Beginx()
+		rows, err := trx.Query(queries.EventSelect, params.EventID)
 		if err != nil {
 			log.Print("Error while fetching event: ", err.Error())
 			return operations.NewGetEventInfoInternalServerError()
@@ -181,7 +182,7 @@ func NewEventInfoHandler(dbClient *sqlx.DB) operations.GetEventInfoHandlerFunc {
 		response.EventRoom = eventRoom.String
 		err = rows.Close()
 
-		rows, err = dbClient.Query(queries.InvitationsSelect, params.EventID)
+		rows, err = trx.Query(queries.InvitationsSelect, params.EventID)
 		if err != nil {
 			log.Print("Error while fetching invitations: ", err.Error())
 			return operations.NewGetEventInfoInternalServerError()
@@ -200,7 +201,7 @@ func NewEventInfoHandler(dbClient *sqlx.DB) operations.GetEventInfoHandlerFunc {
 		}
 
 		rows.NextResultSet()
-		rows, err = dbClient.Query(queries.NotificationsSelect, params.EventID)
+		rows, err = trx.Query(queries.NotificationsSelect, params.EventID)
 		if err != nil {
 			log.Print("Error while fetching notifications: ", err.Error())
 			return operations.NewGetEventInfoInternalServerError()
@@ -226,6 +227,7 @@ func NewEventInfoHandler(dbClient *sqlx.DB) operations.GetEventInfoHandlerFunc {
 			response.Notifications = []*models.Notification{}
 			response.EventLink = ""
 		}
+		_ = trx.Commit()
 
 		return &operations.GetEventInfoOK{Payload: &response}
 	}

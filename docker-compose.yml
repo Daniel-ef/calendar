@@ -16,10 +16,11 @@ services:
 
   go:
     container_name: go
-    # build the Dockerfile, alternatively use an image.
     build:
       context: .
     ports:
       - "55443:55443"
     depends_on:
       - "postgres"
+    networks:
+      - default

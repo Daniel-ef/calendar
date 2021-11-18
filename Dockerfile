@@ -5,15 +5,12 @@ RUN mkdir /go/src/calendar
 WORKDIR /go/src/calendar
 # Copy everything from this project into the filesystem of the container.
 COPY . .
-RUN apt install postgresql
 # Obtain the package needed to run code. Alternatively use GO Modules.
 RUN go get -u github.com/lib/pq
 RUN go get -u -f github.com/go-openapi/runtime
 RUN go get -u -f github.com/jessevdk/go-flags
 
-EXPOSE "55443:55443"
 # Compile the binary exe for our app.
 RUN go build -o main -v calendar/cmd/calendar-api-server
-# Run postgres migration
 # Start the application.
-CMD ["/go/src/calendar/main", "--port", "55443"]
+CMD ["/go/src/calendar/main", "--host", "0.0.0.0", "--port", "55443"]

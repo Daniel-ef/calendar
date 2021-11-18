@@ -8,11 +8,13 @@ import (
 )
 
 func GetPostgresClient() *sqlx.DB {
-	dbinfo := fmt.Sprintf("user=%s password=%s host=%s dbname=%s sslmode=disable",
+	dbinfo := fmt.Sprintf("user=%s password=%s host=%s dbname=%s port=%s sslmode=disable",
 		"user",
 		"mypwd",
-		"localhost",
+		"postgres",
+		//"localhost",
 		"calendar",
+		"5432",
 	)
 
 	db, err := sqlx.Connect("postgres", dbinfo)
