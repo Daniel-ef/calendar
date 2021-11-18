@@ -98,6 +98,9 @@ func init() {
               "properties": {
                 "name": {
                   "type": "string"
+                },
+                "room_id": {
+                  "type": "string"
                 }
               },
               "additionalProperties": false
@@ -267,6 +270,9 @@ func init() {
               "$ref": "#/definitions/UserInfo"
             }
           },
+          "404": {
+            "description": "Not found"
+          },
           "500": {
             "description": "Fetching info failed"
           }
@@ -321,6 +327,9 @@ func init() {
           "type": "string"
         },
         "description": {
+          "type": "string"
+        },
+        "event_id": {
           "type": "string"
         },
         "event_link": {
@@ -626,6 +635,9 @@ func init() {
               "properties": {
                 "name": {
                   "type": "string"
+                },
+                "room_id": {
+                  "type": "string"
                 }
               },
               "additionalProperties": false
@@ -795,6 +807,9 @@ func init() {
               "$ref": "#/definitions/UserInfo"
             }
           },
+          "404": {
+            "description": "Not found"
+          },
           "500": {
             "description": "Fetching info failed"
           }
@@ -849,6 +864,9 @@ func init() {
           "type": "string"
         },
         "description": {
+          "type": "string"
+        },
+        "event_id": {
           "type": "string"
         },
         "event_link": {

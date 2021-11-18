@@ -12,7 +12,10 @@ import (
 func NewEventRoomCreateHandler(dbClient *sqlx.DB) operations.PostEventRoomCreateHandlerFunc {
 	return func(params operations.PostEventRoomCreateParams) middleware.Responder {
 
-		roomId := uuid.New().String()
+		roomId := params.Body.RoomID
+		if roomId == "" {
+			roomId = uuid.New().String()
+		}
 		_, err := dbClient.Exec(queries.EventRoomInsert,
 			roomId,
 			params.Body.Name,

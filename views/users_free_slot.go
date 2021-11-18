@@ -74,7 +74,7 @@ func NewUsersFreeSlotHandler(dbClient *sqlx.DB) operations.PostUsersFreeSlotHand
 			}
 			dayIntervals = append(dayIntervals, Interval{end, end, ""})
 			slotSt, slotEnd, ok := FindSlot(&dayIntervals, slotInterval)
-			if ok {
+			if ok && *slotSt != *slotEnd {
 				slotStRet := strfmt.DateTime(*slotSt)
 				slotEndRet := strfmt.DateTime(*slotEnd)
 				return &operations.PostUsersFreeSlotOK{Payload: &models.UsersFreeSlotResponse{TimeStart: &slotStRet, TimeEnd: &slotEndRet}}

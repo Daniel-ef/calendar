@@ -39,6 +39,8 @@ paths:
           description: Ok
           schema:
              $ref: '#/definitions/UserInfo'
+        404:
+          description: Not found
         500:
           description: Fetching info failed
 
@@ -90,6 +92,8 @@ paths:
             type: object
             additionalProperties: false
             properties:
+              room_id:
+                type: string
               name:
                 type: string
             required:
@@ -270,6 +274,8 @@ definitions:
     type: object
     additionalProperties: false
     properties:
+      event_id:
+        type: string
       name:
         type: string
       description:

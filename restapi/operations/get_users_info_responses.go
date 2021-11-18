@@ -57,6 +57,30 @@ func (o *GetUsersInfoOK) WriteResponse(rw http.ResponseWriter, producer runtime.
 	}
 }
 
+// GetUsersInfoNotFoundCode is the HTTP code returned for type GetUsersInfoNotFound
+const GetUsersInfoNotFoundCode int = 404
+
+/*GetUsersInfoNotFound Not found
+
+swagger:response getUsersInfoNotFound
+*/
+type GetUsersInfoNotFound struct {
+}
+
+// NewGetUsersInfoNotFound creates GetUsersInfoNotFound with default headers values
+func NewGetUsersInfoNotFound() *GetUsersInfoNotFound {
+
+	return &GetUsersInfoNotFound{}
+}
+
+// WriteResponse to the client
+func (o *GetUsersInfoNotFound) WriteResponse(rw http.ResponseWriter, producer runtime.Producer) {
+
+	rw.Header().Del(runtime.HeaderContentType) //Remove Content-Type on empty responses
+
+	rw.WriteHeader(404)
+}
+
 // GetUsersInfoInternalServerErrorCode is the HTTP code returned for type GetUsersInfoInternalServerError
 const GetUsersInfoInternalServerErrorCode int = 500
 

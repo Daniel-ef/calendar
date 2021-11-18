@@ -81,6 +81,10 @@ func NewEventCreateHandler(dbClient *sqlx.DB) operations.PostEventCreateHandlerF
 		trx, err := dbClient.Beginx()
 
 		// events
+		eventID := params.Body.EventID
+		if eventID == "" {
+			eventID = uuid.New().String()
+		}
 		var repeat, eventRoom *string
 		if event.Repeat != "" {
 			repeat = &event.Repeat
@@ -89,7 +93,7 @@ func NewEventCreateHandler(dbClient *sqlx.DB) operations.PostEventCreateHandlerF
 			eventRoom = &event.EventRoom
 		}
 		rows, err := trx.Query(queries.EventCreate,
-			uuid.New().String(),
+			eventID,
 			event.Name,
 			event.Description,
 			event.Creator,

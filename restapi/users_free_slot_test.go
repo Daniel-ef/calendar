@@ -63,43 +63,43 @@ func TestUsersFreeSlot(t *testing.T) {
 	userId3 := CreateUser(t, ts, "cde@mail.ru", "+71234562")
 
 	// simple
-	//_= createEvent(t, ts, userId1,
-	//	"2021-10-08T10:30:00.000Z", "2021-10-08T12:00:00.000Z", "")
-	//_= createEvent(t, ts, userId2,
-	//	"2021-10-08T12:30:00.000Z", "2021-10-08T14:00:00.000Z", "")
-	//_ = createEvent(t, ts, userId3,
-	//	"2021-10-08T13:00:00.000Z", "2021-10-09T12:00:00.000Z", "")
-	//
-	//request := map[string]interface{}{
-	//	"user_ids":   []string{userId1, userId2, userId3},
-	//	"slot_interval_min":  30,
-	//	"from": "2021-10-08T10:15:00.000Z",
-	//}
-	//requestB, _ := json.Marshal(request)
-	//resp, statusCode, _ := MakeResponse("POST", ts.URL+"/users/free_slot", nil,
-	//	requestB)
-	//assert.Equal(t, 200, statusCode, "")
-	//assert.Equal(t, []string{resp["time_start"].(string), resp["time_end"].(string)},
-	//	[]string{"2021-10-08T12:00:00.000Z", "2021-10-08T12:30:00.000Z"})
-
-	// with repeat
 	_ = createEvent(t, ts, userId1,
-		"2021-10-08T10:30:00.000Z", "2021-10-08T12:00:00.000Z", "day")
+		"2021-10-08T10:30:00.000Z", "2021-10-08T12:00:00.000Z", "")
 	_ = createEvent(t, ts, userId2,
-		"2021-10-08T12:30:00.000Z", "2021-10-08T14:00:00.000Z", "week")
+		"2021-10-08T12:30:00.000Z", "2021-10-08T14:00:00.000Z", "")
 	_ = createEvent(t, ts, userId3,
-		"2021-10-08T13:00:00.000Z", "2021-10-09T12:00:00.000Z", "workday")
+		"2021-10-08T13:00:00.000Z", "2021-10-09T12:00:00.000Z", "")
 
 	request := map[string]interface{}{
 		"user_ids":          []string{userId1, userId2, userId3},
 		"slot_interval_min": 30,
-		"from":              "2021-10-15T10:15:00.000Z",
+		"from":              "2021-10-08T10:15:00.000Z",
 	}
 	requestB, _ := json.Marshal(request)
 	resp, statusCode, _ := MakeResponse("POST", ts.URL+"/users/free_slot", nil,
 		requestB)
 	assert.Equal(t, 200, statusCode, "")
 	assert.Equal(t, []string{resp["time_start"].(string), resp["time_end"].(string)},
-		[]string{"2021-10-15T12:00:00.000Z", "2021-10-15T12:30:00.000Z"})
+		[]string{"2021-10-08T12:00:00.000Z", "2021-10-08T12:30:00.000Z"})
+
+	// with repeat
+	//_ = createEvent(t, ts, userId1,
+	//	"2021-10-08T10:30:00.000Z", "2021-10-08T12:00:00.000Z", "day")
+	//_ = createEvent(t, ts, userId2,
+	//	"2021-10-08T12:30:00.000Z", "2021-10-08T14:00:00.000Z", "week")
+	//_ = createEvent(t, ts, userId3,
+	//	"2021-10-08T13:00:00.000Z", "2021-10-09T12:00:00.000Z", "workday")
+	//
+	//request := map[string]interface{}{
+	//	"user_ids":          []string{userId1, userId2, userId3},
+	//	"slot_interval_min": 30,
+	//	"from":              "2021-10-15T10:15:00.000Z",
+	//}
+	//requestB, _ := json.Marshal(request)
+	//resp, statusCode, _ := MakeResponse("POST", ts.URL+"/users/free_slot", nil,
+	//	requestB)
+	//assert.Equal(t, 200, statusCode, "")
+	//assert.Equal(t, []string{resp["time_start"].(string), resp["time_end"].(string)},
+	//	[]string{"2021-10-15T12:00:00.000Z", "2021-10-15T12:30:00.000Z"})
 
 }

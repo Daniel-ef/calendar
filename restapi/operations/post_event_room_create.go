@@ -68,6 +68,9 @@ type PostEventRoomCreateBody struct {
 	// name
 	// Required: true
 	Name *string `json:"name"`
+
+	// room id
+	RoomID string `json:"room_id,omitempty"`
 }
 
 // Validate validates this post event room create body

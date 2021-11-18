@@ -28,6 +28,9 @@ type EventInfo struct {
 	// description
 	Description string `json:"description,omitempty"`
 
+	// event id
+	EventID string `json:"event_id,omitempty"`
+
 	// event link
 	EventLink string `json:"event_link,omitempty"`
 

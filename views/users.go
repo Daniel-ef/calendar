@@ -23,8 +23,12 @@ type User struct {
 func NewUsersCreateHandler(dbClient *sqlx.DB) operations.PostUsersCreateHandlerFunc {
 	return func(params operations.PostUsersCreateParams) middleware.Responder {
 		userInfo := params.Body
+		userID := params.Body.UserID
+		if userID == "" {
+			userID = uuid.New().String()
+		}
 		user := User{
-			UserId:    uuid.New().String(),
+			UserId:    userID,
 			Email:     *userInfo.Email,
 			Phone:     *userInfo.Phone,
 			FirstName: userInfo.FirstName,
@@ -61,8 +65,8 @@ func NewUsersInfoHandler(dbClient *sqlx.DB) operations.GetUsersInfoHandlerFunc {
 	return func(params operations.GetUsersInfoParams) middleware.Responder {
 		user := User{}
 		if err := dbClient.Get(&user, queries.UserSelect, params.UserID); err != nil {
-			log.Print("Error while creating user: ", err.Error())
-			return operations.NewGetUsersInfoInternalServerError()
+			log.Print("Error while fetching user: ", err.Error())
+			return operations.NewGetUsersInfoNotFound()
 		}
 		retUserInfo := models.UserInfo{
 			UserID:    user.UserId,
