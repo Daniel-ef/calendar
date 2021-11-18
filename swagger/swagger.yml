@@ -41,10 +41,29 @@ paths:
              $ref: '#/definitions/UserInfo'
         500:
           description: Fetching info failed
-#  /users/remove:
-#
-#  /event/intersection:
-#
+
+# /users/remove:
+# /users/edit:
+
+  /users/free_slot:
+    post:
+      parameters:
+        - in: body
+          name: body
+          required: true
+          schema:
+            $ref: '#/definitions/UsersFreeSlotRequest'
+      responses:
+        200:
+          description: Ok
+          schema:
+            $ref: '#/definitions/UsersFreeSlotResponse'
+        404:
+          description: Not found
+        500:
+          description: Fail
+
+
   /event/create:
     post:
       parameters:
@@ -152,9 +171,6 @@ paths:
         500:
           description: Update failed
 
-#  /invite/accept:
-#  /invite/reject:
-#  /invite/indetermin:
 definitions:
   ErrorResponse:
     type: object
@@ -198,6 +214,39 @@ definitions:
     required:
       - email
       - phone
+
+  UsersFreeSlotRequest:
+    type: object
+    additionalProperties: false
+    properties:
+      user_ids:
+        type: array
+        minItems: 1
+        items:
+          type: string
+      slot_interval_min:
+        type: integer
+      from:
+        type: string
+        format: date-time
+    required:
+      - user_ids
+      - slot_interval_min
+      - from
+
+  UsersFreeSlotResponse:
+    type: object
+    additionalProperties: false
+    properties:
+      time_start:
+        type: string
+        format: date-time
+      time_end:
+        type: string
+        format: date-time
+    required:
+      - time_start
+      - time_end
 
   Accepted:
     type: string

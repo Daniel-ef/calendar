@@ -222,6 +222,34 @@ func init() {
         }
       }
     },
+    "/users/free_slot": {
+      "post": {
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/UsersFreeSlotRequest"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Ok",
+            "schema": {
+              "$ref": "#/definitions/UsersFreeSlotResponse"
+            }
+          },
+          "404": {
+            "description": "Not found"
+          },
+          "500": {
+            "description": "Fail"
+          }
+        }
+      }
+    },
     "/users/info": {
       "get": {
         "parameters": [
@@ -468,6 +496,49 @@ func init() {
       "properties": {
         "user_id": {
           "type": "string"
+        }
+      },
+      "additionalProperties": false
+    },
+    "UsersFreeSlotRequest": {
+      "type": "object",
+      "required": [
+        "user_ids",
+        "slot_interval_min",
+        "from"
+      ],
+      "properties": {
+        "from": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "slot_interval_min": {
+          "type": "integer"
+        },
+        "user_ids": {
+          "type": "array",
+          "minItems": 1,
+          "items": {
+            "type": "string"
+          }
+        }
+      },
+      "additionalProperties": false
+    },
+    "UsersFreeSlotResponse": {
+      "type": "object",
+      "required": [
+        "time_start",
+        "time_end"
+      ],
+      "properties": {
+        "time_end": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "time_start": {
+          "type": "string",
+          "format": "date-time"
         }
       },
       "additionalProperties": false
@@ -679,6 +750,34 @@ func init() {
         }
       }
     },
+    "/users/free_slot": {
+      "post": {
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/UsersFreeSlotRequest"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Ok",
+            "schema": {
+              "$ref": "#/definitions/UsersFreeSlotResponse"
+            }
+          },
+          "404": {
+            "description": "Not found"
+          },
+          "500": {
+            "description": "Fail"
+          }
+        }
+      }
+    },
     "/users/info": {
       "get": {
         "parameters": [
@@ -925,6 +1024,49 @@ func init() {
       "properties": {
         "user_id": {
           "type": "string"
+        }
+      },
+      "additionalProperties": false
+    },
+    "UsersFreeSlotRequest": {
+      "type": "object",
+      "required": [
+        "user_ids",
+        "slot_interval_min",
+        "from"
+      ],
+      "properties": {
+        "from": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "slot_interval_min": {
+          "type": "integer"
+        },
+        "user_ids": {
+          "type": "array",
+          "minItems": 1,
+          "items": {
+            "type": "string"
+          }
+        }
+      },
+      "additionalProperties": false
+    },
+    "UsersFreeSlotResponse": {
+      "type": "object",
+      "required": [
+        "time_start",
+        "time_end"
+      ],
+      "properties": {
+        "time_end": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "time_start": {
+          "type": "string",
+          "format": "date-time"
         }
       },
       "additionalProperties": false

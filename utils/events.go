@@ -5,7 +5,7 @@ import (
 	"time"
 )
 
-func WeekNum(t time.Time) int {
+func weekNum(t time.Time) int {
 	firstDay := time.Date(t.Year(), t.Month(), 1, 0, 0, 0, 0, time.UTC)
 
 	adjustedDom := t.Day() + int(firstDay.Weekday())
@@ -67,10 +67,10 @@ func CheckEvent(eTimeStart time.Time, eTimeEnd time.Time,
 		return true
 	}
 	if repeatType == "month" {
-		eStart = eStart.AddDate(0, 0, WeekNum(eTimeStart)*7)
-		eEnd = eEnd.AddDate(0, 0, WeekNum(eTimeEnd)*7)
-		rStart = rStart.AddDate(0, 0, WeekNum(rTimeStart)*7)
-		rEnd = rEnd.AddDate(0, 0, WeekNum(rTimeEnd)*7)
+		eStart = eStart.AddDate(0, 0, weekNum(eTimeStart)*7)
+		eEnd = eEnd.AddDate(0, 0, weekNum(eTimeEnd)*7)
+		rStart = rStart.AddDate(0, 0, weekNum(rTimeStart)*7)
+		rEnd = rEnd.AddDate(0, 0, weekNum(rTimeEnd)*7)
 		if !(eStart.Before(rEnd) && eEnd.After(rStart)) {
 			return false
 		}

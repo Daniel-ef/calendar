@@ -66,6 +66,9 @@ func NewCalendarAPIAPI(spec *loads.Document) *CalendarAPIAPI {
 		PostUsersCreateHandler: PostUsersCreateHandlerFunc(func(params PostUsersCreateParams) middleware.Responder {
 			return middleware.NotImplemented("operation PostUsersCreate has not yet been implemented")
 		}),
+		PostUsersFreeSlotHandler: PostUsersFreeSlotHandlerFunc(func(params PostUsersFreeSlotParams) middleware.Responder {
+			return middleware.NotImplemented("operation PostUsersFreeSlot has not yet been implemented")
+		}),
 	}
 }
 
@@ -118,6 +121,8 @@ type CalendarAPIAPI struct {
 	PostInvitationUpdateHandler PostInvitationUpdateHandler
 	// PostUsersCreateHandler sets the operation handler for the post users create operation
 	PostUsersCreateHandler PostUsersCreateHandler
+	// PostUsersFreeSlotHandler sets the operation handler for the post users free slot operation
+	PostUsersFreeSlotHandler PostUsersFreeSlotHandler
 
 	// ServeError is called when an error is received, there is a default handler
 	// but you can set your own with this
@@ -218,6 +223,9 @@ func (o *CalendarAPIAPI) Validate() error {
 	}
 	if o.PostUsersCreateHandler == nil {
 		unregistered = append(unregistered, "PostUsersCreateHandler")
+	}
+	if o.PostUsersFreeSlotHandler == nil {
+		unregistered = append(unregistered, "PostUsersFreeSlotHandler")
 	}
 
 	if len(unregistered) > 0 {
@@ -339,6 +347,10 @@ func (o *CalendarAPIAPI) initHandlerCache() {
 		o.handlers["POST"] = make(map[string]http.Handler)
 	}
 	o.handlers["POST"]["/users/create"] = NewPostUsersCreate(o.context, o.PostUsersCreateHandler)
+	if o.handlers["POST"] == nil {
+		o.handlers["POST"] = make(map[string]http.Handler)
+	}
+	o.handlers["POST"]["/users/free_slot"] = NewPostUsersFreeSlot(o.context, o.PostUsersFreeSlotHandler)
 }
 
 // Serve creates a http handler to serve the API over HTTP

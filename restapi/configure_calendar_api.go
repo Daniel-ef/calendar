@@ -45,6 +45,8 @@ func configureAPI(api *operations.CalendarAPIAPI) http.Handler {
 
 	api.GetUsersInfoHandler = views.NewUsersInfoHandler(postgresqlClient)
 
+	api.PostUsersFreeSlotHandler = views.NewUsersFreeSlotHandler(postgresqlClient)
+
 	api.PostEventRoomCreateHandler = views.NewEventRoomCreateHandler(postgresqlClient)
 
 	api.PostEventCreateHandler = views.NewEventCreateHandler(postgresqlClient)
