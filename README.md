@@ -3,7 +3,7 @@ Start the containers: `docker-compose up -d`
 
 Бывает, что go-контейнер стартует до поднятия базы.
 Поэтому нужно вручную перезапустить контейнер 
-`docker-compose stop go && docker-compose run go`
+`docker-compose stop go && docker-compose run -p 55443:55443 go`
 
 Rebuild and start: `docker-compose up -d --build`
 
@@ -36,7 +36,7 @@ Notes:
 
 Примеры запросов:
 
-`curl --location --request POST 'localhost:55444/users/create' --header 'Content-Type: application/json' --data-raw '{
+`curl --location --request POST 'localhost:55443/users/create' --header 'Content-Type: application/json' --data-raw '{
 "user_id": "user_id1",
 "email": "abc@mail.ru",
 "phone": "+790312331222"
@@ -44,7 +44,7 @@ Notes:
 
 200
 
-`curl --location --request POST 'localhost:55444/users/create' --header 'Content-Type: application/json' --data-raw '{
+`curl --location --request POST 'localhost:55443/users/create' --header 'Content-Type: application/json' --data-raw '{
 "user_id": "user_id2",
 "email": "abc@mail.ru",
 "phone": "+790312331222"
@@ -52,7 +52,7 @@ Notes:
 
 500 (duplication email or phone)
 
-`curl --location --request POST 'localhost:55444/users/create' --header 'Content-Type: application/json' --data-raw '{
+`curl --location --request POST 'localhost:55443/users/create' --header 'Content-Type: application/json' --data-raw '{
 "user_id": "user_id2",
 "email": "cde@mail.ru",
 "phone": "+790312331223"
@@ -60,7 +60,7 @@ Notes:
 
 200
 
-`curl --location --request POST 'localhost:55444/users/create' --header 'Content-Type: application/json' --data-raw '{
+`curl --location --request POST 'localhost:55443/users/create' --header 'Content-Type: application/json' --data-raw '{
 "user_id": "user_id3",
 "email": "bcd@mail.ru",
 "phone": "+790312331224",
@@ -72,7 +72,7 @@ Notes:
 
 200
 
-`curl --location --request GET 'localhost:55444/users/info?user_id=user_id3'`
+`curl --location --request GET 'localhost:55443/users/info?user_id=user_id3'`
 
 ```json
 {
@@ -84,7 +84,7 @@ Notes:
 }
 ```
 
-`curl --location --request POST 'localhost:55444/event/create' --header 'Content-Type: application/json' --data-raw '{
+`curl --location --request POST 'localhost:55443/event/create' --header 'Content-Type: application/json' --data-raw '{
 "event_id": "event_id1",
 "name": "Interview1",
 "creator": "user_id1",
@@ -95,7 +95,7 @@ Notes:
 
 200
 
-`curl --location --request POST 'localhost:55444/event/create' --header 'Content-Type: application/json' --data-raw '{
+`curl --location --request POST 'localhost:55443/event/create' --header 'Content-Type: application/json' --data-raw '{
 "event_id": "event_id2",
 "name": "Interview2",
 "creator": "user_id2",
@@ -106,14 +106,14 @@ Notes:
 
 200
 
-`curl --location --request POST 'localhost:55444/event/room/create' --header 'Content-Type: application/json' --data-raw '{
+`curl --location --request POST 'localhost:55443/event/room/create' --header 'Content-Type: application/json' --data-raw '{
 "room_id": "shmeshariki_1",
 "name": "Smeshariki"
 }'`
 
 200
 
-`curl --location --request POST 'localhost:55444/event/create' --header 'Content-Type: application/json' --data-raw '{
+`curl --location --request POST 'localhost:55443/event/create' --header 'Content-Type: application/json' --data-raw '{
 "event_id": "event_id3",
 "name": "Interview3",
 "creator": "user_id3",
@@ -142,7 +142,7 @@ Notes:
 
 200
 
-`curl --location --request POST 'localhost:55444/invitation/update' --header 'Content-Type: application/json' --data-raw '{
+`curl --location --request POST 'localhost:55443/invitation/update' --header 'Content-Type: application/json' --data-raw '{
 "user_id":  "user_id2",
 "event_id": "event_id3",
 "accepted": "maybe"
@@ -150,7 +150,7 @@ Notes:
 
 200
 
-`curl --location --request GET 'localhost:55444/event/info?event_id=event_id3'`
+`curl --location --request GET 'localhost:55443/event/info?event_id=event_id3'`
 
 ```json
 {
@@ -186,13 +186,13 @@ Notes:
 }
 ```
 
-`curl --location --request GET 'localhost:55444/user_events?user_id=user_id1&time_start=2020-08-01T19:22:00&time_end=2020-08-01T21:22:00'`
+`curl --location --request GET 'localhost:55443/user_events?user_id=user_id1&time_start=2020-08-01T19:22:00&time_end=2020-08-01T21:22:00'`
 
 ```json
 {"event_ids":["event_id3"]}
 ```
 
-`curl --location --request POST 'localhost:55444/users/free_slot' --header 'Content-Type: application/json' --data-raw '{
+`curl --location --request POST 'localhost:55443/users/free_slot' --header 'Content-Type: application/json' --data-raw '{
 "user_ids": ["user_id1", "user_id2", "user_id3"],
 "slot_interval_min": 30,
 "from": "2021-10-08T10:15:00.000Z"
