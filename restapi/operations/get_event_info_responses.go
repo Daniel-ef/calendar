@@ -57,50 +57,6 @@ func (o *GetEventInfoOK) WriteResponse(rw http.ResponseWriter, producer runtime.
 	}
 }
 
-// GetEventInfoBadRequestCode is the HTTP code returned for type GetEventInfoBadRequest
-const GetEventInfoBadRequestCode int = 400
-
-/*GetEventInfoBadRequest Creation failed
-
-swagger:response getEventInfoBadRequest
-*/
-type GetEventInfoBadRequest struct {
-
-	/*
-	  In: Body
-	*/
-	Payload *models.ErrorResponse `json:"body,omitempty"`
-}
-
-// NewGetEventInfoBadRequest creates GetEventInfoBadRequest with default headers values
-func NewGetEventInfoBadRequest() *GetEventInfoBadRequest {
-
-	return &GetEventInfoBadRequest{}
-}
-
-// WithPayload adds the payload to the get event info bad request response
-func (o *GetEventInfoBadRequest) WithPayload(payload *models.ErrorResponse) *GetEventInfoBadRequest {
-	o.Payload = payload
-	return o
-}
-
-// SetPayload sets the payload to the get event info bad request response
-func (o *GetEventInfoBadRequest) SetPayload(payload *models.ErrorResponse) {
-	o.Payload = payload
-}
-
-// WriteResponse to the client
-func (o *GetEventInfoBadRequest) WriteResponse(rw http.ResponseWriter, producer runtime.Producer) {
-
-	rw.WriteHeader(400)
-	if o.Payload != nil {
-		payload := o.Payload
-		if err := producer.Produce(rw, payload); err != nil {
-			panic(err) // let the recovery middleware deal with this
-		}
-	}
-}
-
 // GetEventInfoNotFoundCode is the HTTP code returned for type GetEventInfoNotFound
 const GetEventInfoNotFoundCode int = 404
 
@@ -123,4 +79,28 @@ func (o *GetEventInfoNotFound) WriteResponse(rw http.ResponseWriter, producer ru
 	rw.Header().Del(runtime.HeaderContentType) //Remove Content-Type on empty responses
 
 	rw.WriteHeader(404)
+}
+
+// GetEventInfoInternalServerErrorCode is the HTTP code returned for type GetEventInfoInternalServerError
+const GetEventInfoInternalServerErrorCode int = 500
+
+/*GetEventInfoInternalServerError Creation failed
+
+swagger:response getEventInfoInternalServerError
+*/
+type GetEventInfoInternalServerError struct {
+}
+
+// NewGetEventInfoInternalServerError creates GetEventInfoInternalServerError with default headers values
+func NewGetEventInfoInternalServerError() *GetEventInfoInternalServerError {
+
+	return &GetEventInfoInternalServerError{}
+}
+
+// WriteResponse to the client
+func (o *GetEventInfoInternalServerError) WriteResponse(rw http.ResponseWriter, producer runtime.Producer) {
+
+	rw.Header().Del(runtime.HeaderContentType) //Remove Content-Type on empty responses
+
+	rw.WriteHeader(500)
 }

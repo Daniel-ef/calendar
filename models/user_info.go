@@ -31,6 +31,7 @@ type UserInfo struct {
 
 	// phone
 	// Required: true
+	// Pattern: \+\d{8,20}
 	Phone *string `json:"phone"`
 
 	// user id
@@ -75,6 +76,10 @@ func (m *UserInfo) validateEmail(formats strfmt.Registry) error {
 func (m *UserInfo) validatePhone(formats strfmt.Registry) error {
 
 	if err := validate.Required("phone", "body", m.Phone); err != nil {
+		return err
+	}
+
+	if err := validate.Pattern("phone", "body", *m.Phone, `\+\d{8,20}`); err != nil {
 		return err
 	}
 

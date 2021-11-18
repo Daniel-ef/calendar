@@ -45,7 +45,7 @@ type EventInfo struct {
 	Participants []*Participant `json:"participants"`
 
 	// repeat
-	// Enum: [day week month year workday]
+	// Enum: [day workday week month year]
 	Repeat string `json:"repeat,omitempty"`
 
 	// time end
@@ -180,7 +180,7 @@ var eventInfoTypeRepeatPropEnum []interface{}
 
 func init() {
 	var res []string
-	if err := json.Unmarshal([]byte(`["day","week","month","year","workday"]`), &res); err != nil {
+	if err := json.Unmarshal([]byte(`["day","workday","week","month","year"]`), &res); err != nil {
 		panic(err)
 	}
 	for _, v := range res {
@@ -193,6 +193,9 @@ const (
 	// EventInfoRepeatDay captures enum value "day"
 	EventInfoRepeatDay string = "day"
 
+	// EventInfoRepeatWorkday captures enum value "workday"
+	EventInfoRepeatWorkday string = "workday"
+
 	// EventInfoRepeatWeek captures enum value "week"
 	EventInfoRepeatWeek string = "week"
 
@@ -201,9 +204,6 @@ const (
 
 	// EventInfoRepeatYear captures enum value "year"
 	EventInfoRepeatYear string = "year"
-
-	// EventInfoRepeatWorkday captures enum value "workday"
-	EventInfoRepeatWorkday string = "workday"
 )
 
 // prop value enum

@@ -12,7 +12,7 @@ CREATE TYPE calendar.notification_step_t as ENUM('m', 'h', 'd', 'w');
 
 CREATE TYPE calendar.accepted_t AS ENUM('yes', 'no', 'maybe');
 
-CREATE TYPE calendar.repeat_t AS ENUM('day', 'workday', 'week', 'month', 'year')
+CREATE TYPE calendar.repeat_t AS ENUM('day', 'workday', 'week', 'month', 'year');
 
 CREATE TABLE calendar.users(
     user_id text PRIMARY KEY,
@@ -20,8 +20,8 @@ CREATE TABLE calendar.users(
     phone text NOT NULL UNIQUE,
     first_name text,
     last_name text,
-    workday_start time NOT NULL,
-    workday_end time NOT NULL
+    workday_start time,
+    workday_end time
 );
 
 CREATE TABLE calendar.event_rooms(

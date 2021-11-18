@@ -4,6 +4,7 @@ import (
 	"calendar/models"
 	"calendar/postgresql/queries"
 	"calendar/restapi/operations"
+	"database/sql"
 	"encoding/json"
 	"errors"
 	"github.com/go-openapi/runtime/middleware"
@@ -43,6 +44,7 @@ func (a *Participant) Scan(value interface{}) error {
 
 func GetUserIds(participants []*models.Participant, creator_id string) (userIds []string) {
 	userIdsMap := map[string]struct{}{creator_id: {}}
+	userIds = append(userIds, creator_id)
 	for _, participant := range participants {
 		userId := *participant.UserID
 		if _, ok := userIdsMap[userId]; !ok {
@@ -79,6 +81,13 @@ func NewEventCreateHandler(dbClient *sqlx.DB) operations.PostEventCreateHandlerF
 		trx, err := dbClient.Beginx()
 
 		// events
+		var repeat, eventRoom *string
+		if event.Repeat != "" {
+			repeat = &event.Repeat
+		}
+		if event.EventRoom != "" {
+			eventRoom = &event.EventRoom
+		}
 		rows, err := trx.Query(queries.EventCreate,
 			uuid.New().String(),
 			event.Name,
@@ -86,25 +95,26 @@ func NewEventCreateHandler(dbClient *sqlx.DB) operations.PostEventCreateHandlerF
 			event.Creator,
 			event.TimeStart,
 			event.TimeEnd,
-			event.Repeat,
-			event.EventRoom,
+			repeat,
+			event.Visibility,
+			eventRoom,
 			event.EventLink,
 		)
 		if err != nil {
 			log.Print("Error while creating event: ", err.Error())
 			_ = trx.Rollback()
-			return operations.NewPostEventCreateBadRequest()
+			return operations.NewPostEventCreateInternalServerError()
 		}
 		eventId := new(string)
 		if !rows.Next() {
 			log.Println("Error while fetching event_id: empty rows")
 			_ = trx.Rollback()
-			return operations.NewPostEventCreateBadRequest()
+			return operations.NewPostEventCreateInternalServerError()
 		}
 		if err := rows.Scan(eventId); err != nil {
 			log.Println("Error while scanning event_id: ", err.Error())
 			_ = trx.Rollback()
-			return operations.NewPostEventCreateBadRequest()
+			return operations.NewPostEventCreateInternalServerError()
 		}
 		_ = rows.Close()
 
@@ -114,7 +124,7 @@ func NewEventCreateHandler(dbClient *sqlx.DB) operations.PostEventCreateHandlerF
 		if _, err = trx.Exec(queries.InvitationsInsert,
 			eventId, pq.StringArray(userIds)); err != nil {
 			log.Print("Error while creating invitations: ", err.Error())
-			return operations.NewPostEventCreateBadRequest()
+			return operations.NewPostEventCreateInternalServerError()
 		}
 
 		// Notifications
@@ -130,7 +140,7 @@ func NewEventCreateHandler(dbClient *sqlx.DB) operations.PostEventCreateHandlerF
 			eventId, pq.Int64Array(beforeStarts), pq.StringArray(steps),
 			pq.StringArray(methods)); err != nil {
 			log.Print("Error while creating notifications: ", err.Error())
-			return operations.NewPostEventCreateBadRequest()
+			return operations.NewPostEventCreateInternalServerError()
 		}
 
 		// Commit
@@ -144,11 +154,10 @@ func NewEventCreateHandler(dbClient *sqlx.DB) operations.PostEventCreateHandlerF
 
 func NewEventInfoHandler(dbClient *sqlx.DB) operations.GetEventInfoHandlerFunc {
 	return func(params operations.GetEventInfoParams) middleware.Responder {
-		eventId := params.EventID
-		rows, err := dbClient.Query(queries.EventInfoSelect, eventId)
+		rows, err := dbClient.Query(queries.EventSelect, params.EventID)
 		if err != nil {
 			log.Print("Error while fetching event: ", err.Error())
-			return operations.NewGetEventInfoBadRequest()
+			return operations.NewGetEventInfoInternalServerError()
 		}
 		if !rows.Next() {
 			return operations.NewGetEventInfoNotFound()
@@ -159,18 +168,74 @@ func NewEventInfoHandler(dbClient *sqlx.DB) operations.GetEventInfoHandlerFunc {
 		response.TimeStart = new(strfmt.DateTime)
 		response.TimeEnd = new(strfmt.DateTime)
 
-		participants := []Participant{}
-		notifications := []Notification{}
+		repeat := sql.NullString{}
+		eventRoom := sql.NullString{}
 		if err := rows.Scan(&response.Name, &response.Description, &response.Visibility,
-			&response.Creator, &response.TimeStart, &response.TimeEnd, &response.EventRoom,
-			&response.EventLink, pq.Array(&participants), pq.Array(&notifications),
+			&response.Creator, &response.TimeStart, &response.TimeEnd,
+			&repeat, &eventRoom, &response.EventLink,
 		); err != nil {
-			log.Print("Error while fetching event: ", err.Error())
-			return operations.NewGetEventInfoBadRequest()
+			log.Print("Error while scanning event: ", err.Error())
+			return operations.NewGetEventInfoInternalServerError()
 		}
-		response.Participants = MakeParticipants(participants)
-		response.Notifications = MakeNotifications(notifications)
+		response.Repeat = repeat.String
+		response.EventRoom = eventRoom.String
+		err = rows.Close()
+
+		rows, err = dbClient.Query(queries.InvitationsSelect, params.EventID)
+		if err != nil {
+			log.Print("Error while fetching invitations: ", err.Error())
+			return operations.NewGetEventInfoInternalServerError()
+		}
+
+		for rows.Next() {
+			p := models.Participant{}
+			p.UserID = new(string)
+			accepted := sql.NullString{}
+			if err := rows.Scan(p.UserID, &accepted); err != nil {
+				log.Print("Error while scanning invitation: ", err.Error())
+				break
+			}
+			p.Accepted = models.Accepted(accepted.String)
+			response.Participants = append(response.Participants, &p)
+		}
+
+		rows.NextResultSet()
+		rows, err = dbClient.Query(queries.NotificationsSelect, params.EventID)
+		if err != nil {
+			log.Print("Error while fetching notifications: ", err.Error())
+			return operations.NewGetEventInfoInternalServerError()
+		}
+
+		for rows.Next() {
+			n := models.Notification{}
+			n.BeforeStart = new(int64)
+			n.Step = new(string)
+			n.Method = new(string)
+			if err := rows.Scan(n.BeforeStart, n.Step, n.Method); err != nil {
+				log.Print("Error while scanning notifications: ", err.Error())
+				break
+			}
+			response.Notifications = append(response.Notifications, &n)
+		}
+
+		if *response.Visibility == "participants" && params.UserID != nil &&
+			!Consists(response.Participants, params.UserID) {
+			response.Name = nil
+			response.Description = ""
+			response.EventRoom = ""
+			response.Notifications = []*models.Notification{}
+			response.EventLink = ""
+		}
 
 		return &operations.GetEventInfoOK{Payload: &response}
 	}
+}
+
+func Consists(participants []*models.Participant, id *string) bool {
+	for _, p := range participants {
+		if *id == *p.UserID {
+			return true
+		}
+	}
+	return false
 }

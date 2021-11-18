@@ -57,6 +57,9 @@ func NewCalendarAPIAPI(spec *loads.Document) *CalendarAPIAPI {
 		PostEventCreateHandler: PostEventCreateHandlerFunc(func(params PostEventCreateParams) middleware.Responder {
 			return middleware.NotImplemented("operation PostEventCreate has not yet been implemented")
 		}),
+		PostEventRoomCreateHandler: PostEventRoomCreateHandlerFunc(func(params PostEventRoomCreateParams) middleware.Responder {
+			return middleware.NotImplemented("operation PostEventRoomCreate has not yet been implemented")
+		}),
 		PostInvitationUpdateHandler: PostInvitationUpdateHandlerFunc(func(params PostInvitationUpdateParams) middleware.Responder {
 			return middleware.NotImplemented("operation PostInvitationUpdate has not yet been implemented")
 		}),
@@ -109,6 +112,8 @@ type CalendarAPIAPI struct {
 	GetUsersInfoHandler GetUsersInfoHandler
 	// PostEventCreateHandler sets the operation handler for the post event create operation
 	PostEventCreateHandler PostEventCreateHandler
+	// PostEventRoomCreateHandler sets the operation handler for the post event room create operation
+	PostEventRoomCreateHandler PostEventRoomCreateHandler
 	// PostInvitationUpdateHandler sets the operation handler for the post invitation update operation
 	PostInvitationUpdateHandler PostInvitationUpdateHandler
 	// PostUsersCreateHandler sets the operation handler for the post users create operation
@@ -204,6 +209,9 @@ func (o *CalendarAPIAPI) Validate() error {
 	}
 	if o.PostEventCreateHandler == nil {
 		unregistered = append(unregistered, "PostEventCreateHandler")
+	}
+	if o.PostEventRoomCreateHandler == nil {
+		unregistered = append(unregistered, "PostEventRoomCreateHandler")
 	}
 	if o.PostInvitationUpdateHandler == nil {
 		unregistered = append(unregistered, "PostInvitationUpdateHandler")
@@ -319,6 +327,10 @@ func (o *CalendarAPIAPI) initHandlerCache() {
 		o.handlers["POST"] = make(map[string]http.Handler)
 	}
 	o.handlers["POST"]["/event/create"] = NewPostEventCreate(o.context, o.PostEventCreateHandler)
+	if o.handlers["POST"] == nil {
+		o.handlers["POST"] = make(map[string]http.Handler)
+	}
+	o.handlers["POST"]["/event/room/create"] = NewPostEventRoomCreate(o.context, o.PostEventRoomCreateHandler)
 	if o.handlers["POST"] == nil {
 		o.handlers["POST"] = make(map[string]http.Handler)
 	}

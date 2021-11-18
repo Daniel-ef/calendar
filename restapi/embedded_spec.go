@@ -46,11 +46,8 @@ func init() {
               "$ref": "#/definitions/EventCreateResponse"
             }
           },
-          "400": {
-            "description": "Creation failed",
-            "schema": {
-              "$ref": "#/definitions/ErrorResponse"
-            }
+          "500": {
+            "description": "Creation failed"
           }
         }
       }
@@ -63,6 +60,11 @@ func init() {
             "name": "event_id",
             "in": "query",
             "required": true
+          },
+          {
+            "type": "string",
+            "name": "user_id",
+            "in": "query"
           }
         ],
         "responses": {
@@ -72,14 +74,54 @@ func init() {
               "$ref": "#/definitions/EventInfo"
             }
           },
-          "400": {
-            "description": "Creation failed",
-            "schema": {
-              "$ref": "#/definitions/ErrorResponse"
-            }
-          },
           "404": {
             "description": "Not found"
+          },
+          "500": {
+            "description": "Creation failed"
+          }
+        }
+      }
+    },
+    "/event/room/create": {
+      "post": {
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "type": "object",
+              "required": [
+                "name"
+              ],
+              "properties": {
+                "name": {
+                  "type": "string"
+                }
+              },
+              "additionalProperties": false
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Ok",
+            "schema": {
+              "type": "object",
+              "required": [
+                "room_id"
+              ],
+              "properties": {
+                "room_id": {
+                  "type": "string"
+                }
+              },
+              "additionalProperties": false
+            }
+          },
+          "500": {
+            "description": "Creation failed"
           }
         }
       }
@@ -174,11 +216,8 @@ func init() {
               "$ref": "#/definitions/UsersCreateResponse"
             }
           },
-          "400": {
-            "description": "Creation failed",
-            "schema": {
-              "$ref": "#/definitions/ErrorResponse"
-            }
+          "500": {
+            "description": "Creation failed"
           }
         }
       }
@@ -188,13 +227,9 @@ func init() {
         "parameters": [
           {
             "type": "string",
-            "name": "phone",
-            "in": "query"
-          },
-          {
-            "type": "string",
-            "name": "email",
-            "in": "query"
+            "name": "user_id",
+            "in": "query",
+            "required": true
           }
         ],
         "responses": {
@@ -204,11 +239,8 @@ func init() {
               "$ref": "#/definitions/UserInfo"
             }
           },
-          "400": {
-            "description": "Creation failed",
-            "schema": {
-              "$ref": "#/definitions/ErrorResponse"
-            }
+          "500": {
+            "description": "Fetching info failed"
           }
         }
       }
@@ -288,10 +320,10 @@ func init() {
           "type": "string",
           "enum": [
             "day",
+            "workday",
             "week",
             "month",
-            "year",
-            "workday"
+            "year"
           ]
         },
         "time_end": {
@@ -411,7 +443,8 @@ func init() {
           "type": "string"
         },
         "phone": {
-          "type": "string"
+          "type": "string",
+          "pattern": "\\+\\d{8,20}"
         },
         "user_id": {
           "type": "string"
@@ -470,11 +503,8 @@ func init() {
               "$ref": "#/definitions/EventCreateResponse"
             }
           },
-          "400": {
-            "description": "Creation failed",
-            "schema": {
-              "$ref": "#/definitions/ErrorResponse"
-            }
+          "500": {
+            "description": "Creation failed"
           }
         }
       }
@@ -487,6 +517,11 @@ func init() {
             "name": "event_id",
             "in": "query",
             "required": true
+          },
+          {
+            "type": "string",
+            "name": "user_id",
+            "in": "query"
           }
         ],
         "responses": {
@@ -496,14 +531,54 @@ func init() {
               "$ref": "#/definitions/EventInfo"
             }
           },
-          "400": {
-            "description": "Creation failed",
-            "schema": {
-              "$ref": "#/definitions/ErrorResponse"
-            }
-          },
           "404": {
             "description": "Not found"
+          },
+          "500": {
+            "description": "Creation failed"
+          }
+        }
+      }
+    },
+    "/event/room/create": {
+      "post": {
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "type": "object",
+              "required": [
+                "name"
+              ],
+              "properties": {
+                "name": {
+                  "type": "string"
+                }
+              },
+              "additionalProperties": false
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Ok",
+            "schema": {
+              "type": "object",
+              "required": [
+                "room_id"
+              ],
+              "properties": {
+                "room_id": {
+                  "type": "string"
+                }
+              },
+              "additionalProperties": false
+            }
+          },
+          "500": {
+            "description": "Creation failed"
           }
         }
       }
@@ -598,11 +673,8 @@ func init() {
               "$ref": "#/definitions/UsersCreateResponse"
             }
           },
-          "400": {
-            "description": "Creation failed",
-            "schema": {
-              "$ref": "#/definitions/ErrorResponse"
-            }
+          "500": {
+            "description": "Creation failed"
           }
         }
       }
@@ -612,13 +684,9 @@ func init() {
         "parameters": [
           {
             "type": "string",
-            "name": "phone",
-            "in": "query"
-          },
-          {
-            "type": "string",
-            "name": "email",
-            "in": "query"
+            "name": "user_id",
+            "in": "query",
+            "required": true
           }
         ],
         "responses": {
@@ -628,11 +696,8 @@ func init() {
               "$ref": "#/definitions/UserInfo"
             }
           },
-          "400": {
-            "description": "Creation failed",
-            "schema": {
-              "$ref": "#/definitions/ErrorResponse"
-            }
+          "500": {
+            "description": "Fetching info failed"
           }
         }
       }
@@ -712,10 +777,10 @@ func init() {
           "type": "string",
           "enum": [
             "day",
+            "workday",
             "week",
             "month",
-            "year",
-            "workday"
+            "year"
           ]
         },
         "time_end": {
@@ -835,7 +900,8 @@ func init() {
           "type": "string"
         },
         "phone": {
-          "type": "string"
+          "type": "string",
+          "pattern": "\\+\\d{8,20}"
         },
         "user_id": {
           "type": "string"

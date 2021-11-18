@@ -6,4 +6,4 @@ var UserInsert = `INSERT INTO calendar.users
  RETURNING user_id;`
 
 var UserSelect = `SELECT user_id, email, phone, first_name, last_name, workday_start, workday_end
- FROM calendar.users WHERE `
+ FROM calendar.users WHERE user_id = $1`

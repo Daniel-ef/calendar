@@ -57,46 +57,26 @@ func (o *GetUsersInfoOK) WriteResponse(rw http.ResponseWriter, producer runtime.
 	}
 }
 
-// GetUsersInfoBadRequestCode is the HTTP code returned for type GetUsersInfoBadRequest
-const GetUsersInfoBadRequestCode int = 400
+// GetUsersInfoInternalServerErrorCode is the HTTP code returned for type GetUsersInfoInternalServerError
+const GetUsersInfoInternalServerErrorCode int = 500
 
-/*GetUsersInfoBadRequest Creation failed
+/*GetUsersInfoInternalServerError Fetching info failed
 
-swagger:response getUsersInfoBadRequest
+swagger:response getUsersInfoInternalServerError
 */
-type GetUsersInfoBadRequest struct {
-
-	/*
-	  In: Body
-	*/
-	Payload *models.ErrorResponse `json:"body,omitempty"`
+type GetUsersInfoInternalServerError struct {
 }
 
-// NewGetUsersInfoBadRequest creates GetUsersInfoBadRequest with default headers values
-func NewGetUsersInfoBadRequest() *GetUsersInfoBadRequest {
+// NewGetUsersInfoInternalServerError creates GetUsersInfoInternalServerError with default headers values
+func NewGetUsersInfoInternalServerError() *GetUsersInfoInternalServerError {
 
-	return &GetUsersInfoBadRequest{}
-}
-
-// WithPayload adds the payload to the get users info bad request response
-func (o *GetUsersInfoBadRequest) WithPayload(payload *models.ErrorResponse) *GetUsersInfoBadRequest {
-	o.Payload = payload
-	return o
-}
-
-// SetPayload sets the payload to the get users info bad request response
-func (o *GetUsersInfoBadRequest) SetPayload(payload *models.ErrorResponse) {
-	o.Payload = payload
+	return &GetUsersInfoInternalServerError{}
 }
 
 // WriteResponse to the client
-func (o *GetUsersInfoBadRequest) WriteResponse(rw http.ResponseWriter, producer runtime.Producer) {
+func (o *GetUsersInfoInternalServerError) WriteResponse(rw http.ResponseWriter, producer runtime.Producer) {
 
-	rw.WriteHeader(400)
-	if o.Payload != nil {
-		payload := o.Payload
-		if err := producer.Produce(rw, payload); err != nil {
-			panic(err) // let the recovery middleware deal with this
-		}
-	}
+	rw.Header().Del(runtime.HeaderContentType) //Remove Content-Type on empty responses
+
+	rw.WriteHeader(500)
 }

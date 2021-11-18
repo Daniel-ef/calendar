@@ -24,31 +24,23 @@ paths:
           description: Ok
           schema:
             $ref: '#/definitions/UsersCreateResponse'
-        400:
+        500:
           description: Creation failed
-          schema:
-            $ref: '#/definitions/ErrorResponse'
 
   /users/info:
     get:
       parameters:
         - in: query
           type: string
-          name: phone
-          required: false
-        - in: query
-          type: string
-          name: email
-          required: false
+          name: user_id
+          required: true
       responses:
         200:
           description: Ok
           schema:
              $ref: '#/definitions/UserInfo'
-        400:
-          description: Creation failed
-          schema:
-            $ref: '#/definitions/ErrorResponse'
+        500:
+          description: Fetching info failed
 #  /users/remove:
 #
 #  /event/intersection:
@@ -66,10 +58,37 @@ paths:
           description: Ok
           schema:
             $ref: '#/definitions/EventCreateResponse'
-        400:
+        500:
           description: Creation failed
+
+  /event/room/create:
+    post:
+      parameters:
+        - in: body
+          name: body
+          required: true
           schema:
-            $ref: '#/definitions/ErrorResponse'
+            type: object
+            additionalProperties: false
+            properties:
+              name:
+                type: string
+            required:
+              - name
+      responses:
+        200:
+          description: Ok
+          schema:
+            type: object
+            additionalProperties: false
+            properties:
+              room_id:
+                type: string
+            required:
+              - room_id
+        500:
+          description: Creation failed
+
   /event/info:
     get:
       parameters:
@@ -77,15 +96,17 @@ paths:
           type: string
           name: event_id
           required: true
+        - in: query
+          type: string
+          name: user_id
+          required: false
       responses:
         200:
           description: Ok
           schema:
             $ref: '#/definitions/EventInfo'
-        400:
+        500:
           description: Creation failed
-          schema:
-            $ref: '#/definitions/ErrorResponse'
         404:
           description: Not found
 #  /event/edit:
@@ -163,6 +184,7 @@ definitions:
         type: string
       phone:
         type: string
+        pattern: '\+\d{8,20}'
       first_name:
         type: string
       last_name:

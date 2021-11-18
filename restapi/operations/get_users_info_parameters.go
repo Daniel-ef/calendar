@@ -12,6 +12,7 @@ import (
 	"github.com/go-openapi/runtime"
 	"github.com/go-openapi/runtime/middleware"
 	"github.com/go-openapi/strfmt"
+	"github.com/go-openapi/validate"
 )
 
 // NewGetUsersInfoParams creates a new GetUsersInfoParams object
@@ -32,13 +33,10 @@ type GetUsersInfoParams struct {
 	HTTPRequest *http.Request `json:"-"`
 
 	/*
+	  Required: true
 	  In: query
 	*/
-	Email *string
-	/*
-	  In: query
-	*/
-	Phone *string
+	UserID string
 }
 
 // BindRequest both binds and validates a request, it assumes that complex things implement a Validatable(strfmt.Registry) error interface
@@ -52,13 +50,8 @@ func (o *GetUsersInfoParams) BindRequest(r *http.Request, route *middleware.Matc
 
 	qs := runtime.Values(r.URL.Query())
 
-	qEmail, qhkEmail, _ := qs.GetOK("email")
-	if err := o.bindEmail(qEmail, qhkEmail, route.Formats); err != nil {
-		res = append(res, err)
-	}
-
-	qPhone, qhkPhone, _ := qs.GetOK("phone")
-	if err := o.bindPhone(qPhone, qhkPhone, route.Formats); err != nil {
+	qUserID, qhkUserID, _ := qs.GetOK("user_id")
+	if err := o.bindUserID(qUserID, qhkUserID, route.Formats); err != nil {
 		res = append(res, err)
 	}
 	if len(res) > 0 {
@@ -67,38 +60,23 @@ func (o *GetUsersInfoParams) BindRequest(r *http.Request, route *middleware.Matc
 	return nil
 }
 
-// bindEmail binds and validates parameter Email from query.
-func (o *GetUsersInfoParams) bindEmail(rawData []string, hasKey bool, formats strfmt.Registry) error {
+// bindUserID binds and validates parameter UserID from query.
+func (o *GetUsersInfoParams) bindUserID(rawData []string, hasKey bool, formats strfmt.Registry) error {
+	if !hasKey {
+		return errors.Required("user_id", "query", rawData)
+	}
 	var raw string
 	if len(rawData) > 0 {
 		raw = rawData[len(rawData)-1]
 	}
 
-	// Required: false
+	// Required: true
 	// AllowEmptyValue: false
 
-	if raw == "" { // empty values pass all other validations
-		return nil
+	if err := validate.RequiredString("user_id", "query", raw); err != nil {
+		return err
 	}
-	o.Email = &raw
-
-	return nil
-}
-
-// bindPhone binds and validates parameter Phone from query.
-func (o *GetUsersInfoParams) bindPhone(rawData []string, hasKey bool, formats strfmt.Registry) error {
-	var raw string
-	if len(rawData) > 0 {
-		raw = rawData[len(rawData)-1]
-	}
-
-	// Required: false
-	// AllowEmptyValue: false
-
-	if raw == "" { // empty values pass all other validations
-		return nil
-	}
-	o.Phone = &raw
+	o.UserID = raw
 
 	return nil
 }

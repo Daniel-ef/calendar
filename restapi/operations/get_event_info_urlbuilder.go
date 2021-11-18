@@ -14,6 +14,7 @@ import (
 // GetEventInfoURL generates an URL for the get event info operation
 type GetEventInfoURL struct {
 	EventID string
+	UserID  *string
 
 	_basePath string
 	// avoid unkeyed usage
@@ -49,6 +50,14 @@ func (o *GetEventInfoURL) Build() (*url.URL, error) {
 	eventIDQ := o.EventID
 	if eventIDQ != "" {
 		qs.Set("event_id", eventIDQ)
+	}
+
+	var userIDQ string
+	if o.UserID != nil {
+		userIDQ = *o.UserID
+	}
+	if userIDQ != "" {
+		qs.Set("user_id", userIDQ)
 	}
 
 	_result.RawQuery = qs.Encode()

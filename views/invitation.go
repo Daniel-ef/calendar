@@ -10,7 +10,7 @@ import (
 
 func NewInvitationUpdateHandler(dbClient *sqlx.DB) operations.PostInvitationUpdateHandlerFunc {
 	return func(params operations.PostInvitationUpdateParams) middleware.Responder {
-		rows, err := dbClient.Exec(queries.InvitationsInsert,
+		rows, err := dbClient.Exec(queries.InvitationsUpdate,
 			params.Body.UserID, params.Body.EventID, params.Body.Accepted)
 		if err != nil {
 			log.Print("Error while updating invitation: ", err.Error())

@@ -57,46 +57,26 @@ func (o *PostEventCreateOK) WriteResponse(rw http.ResponseWriter, producer runti
 	}
 }
 
-// PostEventCreateBadRequestCode is the HTTP code returned for type PostEventCreateBadRequest
-const PostEventCreateBadRequestCode int = 400
+// PostEventCreateInternalServerErrorCode is the HTTP code returned for type PostEventCreateInternalServerError
+const PostEventCreateInternalServerErrorCode int = 500
 
-/*PostEventCreateBadRequest Creation failed
+/*PostEventCreateInternalServerError Creation failed
 
-swagger:response postEventCreateBadRequest
+swagger:response postEventCreateInternalServerError
 */
-type PostEventCreateBadRequest struct {
-
-	/*
-	  In: Body
-	*/
-	Payload *models.ErrorResponse `json:"body,omitempty"`
+type PostEventCreateInternalServerError struct {
 }
 
-// NewPostEventCreateBadRequest creates PostEventCreateBadRequest with default headers values
-func NewPostEventCreateBadRequest() *PostEventCreateBadRequest {
+// NewPostEventCreateInternalServerError creates PostEventCreateInternalServerError with default headers values
+func NewPostEventCreateInternalServerError() *PostEventCreateInternalServerError {
 
-	return &PostEventCreateBadRequest{}
-}
-
-// WithPayload adds the payload to the post event create bad request response
-func (o *PostEventCreateBadRequest) WithPayload(payload *models.ErrorResponse) *PostEventCreateBadRequest {
-	o.Payload = payload
-	return o
-}
-
-// SetPayload sets the payload to the post event create bad request response
-func (o *PostEventCreateBadRequest) SetPayload(payload *models.ErrorResponse) {
-	o.Payload = payload
+	return &PostEventCreateInternalServerError{}
 }
 
 // WriteResponse to the client
-func (o *PostEventCreateBadRequest) WriteResponse(rw http.ResponseWriter, producer runtime.Producer) {
+func (o *PostEventCreateInternalServerError) WriteResponse(rw http.ResponseWriter, producer runtime.Producer) {
 
-	rw.WriteHeader(400)
-	if o.Payload != nil {
-		payload := o.Payload
-		if err := producer.Produce(rw, payload); err != nil {
-			panic(err) // let the recovery middleware deal with this
-		}
-	}
+	rw.Header().Del(runtime.HeaderContentType) //Remove Content-Type on empty responses
+
+	rw.WriteHeader(500)
 }

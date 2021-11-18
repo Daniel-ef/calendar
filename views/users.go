@@ -4,7 +4,6 @@ import (
 	"calendar/models"
 	"calendar/postgresql/queries"
 	"calendar/restapi/operations"
-	"fmt"
 	"github.com/go-openapi/runtime/middleware"
 	"github.com/google/uuid"
 	"github.com/jmoiron/sqlx"
@@ -15,40 +14,43 @@ type User struct {
 	UserId       string `db:"user_id"`
 	Email        string
 	Phone        string
-	FirstName    string `db:"first_name"`
-	LastName     string `db:"last_name"`
-	WorkDayStart string `db:"workday_start"`
-	WorkDayEnd   string `db:"workday_end"`
+	FirstName    string  `db:"first_name"`
+	LastName     string  `db:"last_name"`
+	WorkDayStart *string `db:"workday_start"`
+	WorkDayEnd   *string `db:"workday_end"`
 }
 
 func NewUsersCreateHandler(dbClient *sqlx.DB) operations.PostUsersCreateHandlerFunc {
 	return func(params operations.PostUsersCreateParams) middleware.Responder {
 		userInfo := params.Body
-		rows, err := dbClient.NamedQuery(queries.UserInsert,
-			User{
-				UserId:       uuid.New().String(),
-				Email:        *userInfo.Email,
-				Phone:        *userInfo.Phone,
-				FirstName:    userInfo.FirstName,
-				LastName:     userInfo.LastName,
-				WorkDayStart: userInfo.WorkdayStart,
-				WorkDayEnd:   userInfo.WorkdayEnd,
-			},
-		)
+		user := User{
+			UserId:    uuid.New().String(),
+			Email:     *userInfo.Email,
+			Phone:     *userInfo.Phone,
+			FirstName: userInfo.FirstName,
+			LastName:  userInfo.LastName,
+		}
+		if len(userInfo.WorkdayStart) != 0 {
+			user.WorkDayStart = &userInfo.WorkdayStart
+		}
+		if len(userInfo.WorkdayEnd) != 0 {
+			user.WorkDayEnd = &userInfo.WorkdayEnd
+		}
+		rows, err := dbClient.NamedQuery(queries.UserInsert, user)
 		if err != nil {
 			log.Print("Error while creating user: ", err.Error())
-			return operations.NewPostUsersCreateBadRequest()
+			return operations.NewPostUsersCreateInternalServerError()
 		}
 
 		userId := new(string)
 		success := rows.Next()
 		if !success {
 			log.Println("Error while fetching user_id: ", err.Error())
-			return operations.NewPostUsersCreateBadRequest()
+			return operations.NewPostUsersCreateInternalServerError()
 		}
 		if err := rows.Scan(userId); err != nil {
 			log.Println("Error while scanning user_id: ", err.Error())
-			return operations.NewPostUsersCreateBadRequest()
+			return operations.NewPostUsersCreateInternalServerError()
 		}
 
 		return &operations.PostUsersCreateOK{Payload: &models.UsersCreateResponse{userId}}
@@ -57,30 +59,23 @@ func NewUsersCreateHandler(dbClient *sqlx.DB) operations.PostUsersCreateHandlerF
 
 func NewUsersInfoHandler(dbClient *sqlx.DB) operations.GetUsersInfoHandlerFunc {
 	return func(params operations.GetUsersInfoParams) middleware.Responder {
-		query := queries.UserSelect
-		if params.Email == nil && params.Phone == nil ||
-			params.Email != nil && params.Phone != nil {
-			return operations.NewGetUsersInfoBadRequest()
-		}
-		if params.Email != nil {
-			query += fmt.Sprintf(" email='%s'", *params.Email)
-		} else {
-			query += fmt.Sprintf(" phone='%s'", *params.Phone)
-		}
-
 		user := User{}
-		if err := dbClient.Get(&user, query); err != nil {
+		if err := dbClient.Get(&user, queries.UserSelect, params.UserID); err != nil {
 			log.Print("Error while creating user: ", err.Error())
-			return operations.NewGetUsersInfoBadRequest()
+			return operations.NewGetUsersInfoInternalServerError()
 		}
 		retUserInfo := models.UserInfo{
-			UserID:       user.UserId,
-			Email:        &user.Email,
-			Phone:        &user.Phone,
-			FirstName:    user.FirstName,
-			LastName:     user.LastName,
-			WorkdayStart: user.WorkDayStart,
-			WorkdayEnd:   user.WorkDayEnd,
+			UserID:    user.UserId,
+			Email:     &user.Email,
+			Phone:     &user.Phone,
+			FirstName: user.FirstName,
+			LastName:  user.LastName,
+		}
+		if user.WorkDayStart != nil {
+			retUserInfo.WorkdayStart = *user.WorkDayStart
+		}
+		if user.WorkDayEnd != nil {
+			retUserInfo.WorkdayEnd = *user.WorkDayEnd
 		}
 		response := operations.NewGetUsersInfoOK()
 		response.SetPayload(&retUserInfo)
