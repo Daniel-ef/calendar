@@ -30,20 +30,20 @@ func TestEvents(t *testing.T) {
 	}
 
 	// users
-	body, statusCode, _ := MakeResponse("POST", ts.URL+"/users/create", nil,
+	resp, statusCode, _ := MakeResponse("POST", ts.URL+"/users/create", nil,
 		[]byte(`{
 			"email": "abc@mail.ru",
 			"phone": "+744222134"
 		}`))
 	assert.Equal(t, statusCode, 200, "")
-	userId1 := body["user_id"].(string)
-	body, statusCode, _ = MakeResponse("POST", ts.URL+"/users/create", nil,
+	userId1 := resp["user_id"].(string)
+	resp, statusCode, _ = MakeResponse("POST", ts.URL+"/users/create", nil,
 		[]byte(`{
 			"email": "abc1@mail.ru",
 			"phone": "+744222132"
 		}`))
 	assert.Equal(t, statusCode, 200, "")
-	userId2 := body["user_id"].(string)
+	userId2 := resp["user_id"].(string)
 
 	// test base creation
 	request := map[string]interface{}{
@@ -54,31 +54,31 @@ func TestEvents(t *testing.T) {
 		"visibility": "all",
 	}
 	requestB, _ := json.Marshal(request)
-	body, statusCode, _ = MakeResponse("POST", ts.URL+"/event/create", nil,
+	resp, statusCode, _ = MakeResponse("POST", ts.URL+"/event/create", nil,
 		requestB)
 	assert.Equal(t, statusCode, 200, "")
 
 	params := url.Values{
-		"event_id": {body["event_id"].(string)},
+		"event_id": {resp["event_id"].(string)},
 	}
-	body, statusCode, _ = MakeResponse("GET", ts.URL+"/event/info?", &params, nil)
+	resp, statusCode, _ = MakeResponse("GET", ts.URL+"/event/info?", &params, nil)
 	assert.Equal(t, statusCode, 200, "")
-	participants := body["participants"].([]interface{})
+	participants := resp["participants"].([]interface{})
 	participant := participants[0].(map[string]interface{})
 	assert.Equal(t, participant["user_id"].(string), userId1)
-	delete(body, "participants")
-	delete(body, "notifications")
-	assert.Equal(t, body, request)
+	delete(resp, "participants")
+	delete(resp, "notifications")
+	assert.Equal(t, resp, request)
 
 	// test full creation
 	request = map[string]interface{}{
 		"name": "Smeshariki",
 	}
 	requestB, _ = json.Marshal(request)
-	body, statusCode, _ = MakeResponse("POST", ts.URL+"/event/room/create", nil,
+	resp, statusCode, _ = MakeResponse("POST", ts.URL+"/event/room/create", nil,
 		requestB)
 	assert.Equal(t, statusCode, 200, "")
-	roomId := body["room_id"].(string)
+	roomId := resp["room_id"].(string)
 
 	bigRequest := map[string]interface{}{
 		"name":        "Interview1",
@@ -109,10 +109,10 @@ func TestEvents(t *testing.T) {
 		},
 	}
 	requestB, _ = json.Marshal(bigRequest)
-	body, statusCode, _ = MakeResponse("POST", ts.URL+"/event/create", nil,
+	resp, statusCode, _ = MakeResponse("POST", ts.URL+"/event/create", nil,
 		requestB)
 	assert.Equal(t, statusCode, 200, "")
-	eventId := body["event_id"].(string)
+	eventId := resp["event_id"].(string)
 
 	request = map[string]interface{}{
 		"user_id":  userId1,
@@ -120,35 +120,35 @@ func TestEvents(t *testing.T) {
 		"accepted": "maybe",
 	}
 	requestB, _ = json.Marshal(request)
-	body, statusCode, _ = MakeResponse("POST", ts.URL+"/invitation/update", nil,
+	resp, statusCode, _ = MakeResponse("POST", ts.URL+"/invitation/update", nil,
 		requestB)
 	assert.Equal(t, statusCode, 200, "")
 
 	params = url.Values{
 		"event_id": {eventId},
 	}
-	body, statusCode, _ = MakeResponse("GET", ts.URL+"/event/info?", &params, nil)
+	resp, statusCode, _ = MakeResponse("GET", ts.URL+"/event/info?", &params, nil)
 	assert.Equal(t, statusCode, 200, "")
-	participants = body["participants"].([]interface{})
+	participants = resp["participants"].([]interface{})
 	participant = participants[0].(map[string]interface{})
 	assert.Equal(t, participant["user_id"].(string), userId1)
 	assert.Equal(t, participant["accepted"].(string), "maybe")
-	delete(body, "participants")
-	delete(body, "notifications")
+	delete(resp, "participants")
+	delete(resp, "notifications")
 	delete(bigRequest, "participants")
 	delete(bigRequest, "notifications")
 
-	assert.Equal(t, body, bigRequest)
+	assert.Equal(t, resp, bigRequest)
 
 	params = url.Values{
 		"event_id": {eventId},
 		"user_id":  {"anyUser"},
 	}
-	body, statusCode, _ = MakeResponse("GET", ts.URL+"/event/info?", &params, nil)
+	resp, statusCode, _ = MakeResponse("GET", ts.URL+"/event/info?", &params, nil)
 	assert.Equal(t, statusCode, 200, "")
-	participants = body["participants"].([]interface{})
+	participants = resp["participants"].([]interface{})
 	participant = participants[0].(map[string]interface{})
 	assert.Equal(t, participant["user_id"].(string), userId1)
 	assert.Equal(t, participant["accepted"].(string), "maybe")
-	assert.Equal(t, body["name"], nil)
+	assert.Equal(t, resp["name"], nil)
 }

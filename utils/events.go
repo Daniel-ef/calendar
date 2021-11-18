@@ -16,6 +16,10 @@ func CheckEvent(eTimeStart time.Time, eTimeEnd time.Time,
 	rTimeStart time.Time, rTimeEnd time.Time,
 	repeatType string) bool {
 
+	if eTimeStart.After(rTimeEnd) {
+		return false
+	}
+
 	if repeatType == "" {
 		return rTimeStart.Before(eTimeEnd) && rTimeEnd.After(eTimeStart)
 	}
@@ -37,6 +41,19 @@ func CheckEvent(eTimeStart time.Time, eTimeEnd time.Time,
 	}
 
 	if repeatType == "workday" {
+		if eTimeStart.Weekday() < 5 {
+			if !(eStart.Before(rEnd) && eEnd.After(rStart)) {
+				return false
+			}
+			return true
+		} else {
+			rStart = rStart.AddDate(0, 0, int(eTimeStart.Weekday())-4)
+			rEnd = rEnd.AddDate(0, 0, int(eTimeStart.Weekday())-4)
+			if !(eStart.Before(rEnd) && eEnd.After(rStart)) {
+				return false
+			}
+			return true
+		}
 	}
 
 	if repeatType == "week" {

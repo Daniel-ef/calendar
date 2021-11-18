@@ -44,6 +44,30 @@ func TestSomething(t *testing.T) {
 	assert.True(t, CheckEvent(
 		date.Add(dur*0),
 		date.Add(dur*2),
+		date.Add(dur*1).AddDate(0, 0, 5),
+		date.Add(dur*3).AddDate(0, 0, 5),
+		"workday",
+	), "")
+
+	assert.True(t, CheckEvent(
+		date.Add(dur*0).AddDate(0, 0, 3),
+		date.Add(dur*2).AddDate(0, 0, 5),
+		date.Add(dur*1).AddDate(0, 0, 4),
+		date.Add(dur*3).AddDate(0, 0, 4),
+		"workday",
+	), "")
+
+	assert.False(t, CheckEvent(
+		date.Add(dur*0).AddDate(0, 0, 3),
+		date.Add(dur*2).AddDate(0, 0, 3),
+		date.Add(dur*1).AddDate(0, 0, 4),
+		date.Add(dur*3).AddDate(0, 0, 4),
+		"workday",
+	), "")
+
+	assert.True(t, CheckEvent(
+		date.Add(dur*0),
+		date.Add(dur*2),
 		date.Add(dur*1).AddDate(0, 0, 14),
 		date.Add(dur*3).AddDate(0, 0, 14),
 		"week",

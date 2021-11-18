@@ -35,24 +35,24 @@ func TestUsers(t *testing.T) {
 	assert.Equal(t, statusCode, 400, "")
 
 	// test creation
-	body, statusCode, _ := MakeResponse("POST", ts.URL+"/users/create", nil,
+	resp, statusCode, _ := MakeResponse("POST", ts.URL+"/users/create", nil,
 		[]byte(`{
 			"email": "e24@mail.ru",
 			"phone": "+744222134"
 		}`))
 	assert.Equal(t, statusCode, 200, "")
-	assert.True(t, len(body["user_id"].(string)) > 0, "")
+	assert.True(t, len(resp["user_id"].(string)) > 0, "")
 
 	params := url.Values{
-		"user_id": {body["user_id"].(string)},
+		"user_id": {resp["user_id"].(string)},
 	}
-	body, statusCode, _ = MakeResponse("GET", ts.URL+"/users/info?", &params, nil)
+	resp, statusCode, _ = MakeResponse("GET", ts.URL+"/users/info?", &params, nil)
 	assert.Equal(t, statusCode, 200, "")
-	assert.Equal(t, body["email"].(string), "e24@mail.ru")
-	assert.Equal(t, body["phone"].(string), "+744222134")
+	assert.Equal(t, resp["email"].(string), "e24@mail.ru")
+	assert.Equal(t, resp["phone"].(string), "+744222134")
 
 	// test big creation
-	body, statusCode, _ = MakeResponse("POST", ts.URL+"/users/create", nil,
+	resp, statusCode, _ = MakeResponse("POST", ts.URL+"/users/create", nil,
 		[]byte(`{
 			"email": "abc@mail.ru",
 			"first_name": "Sobaka",
@@ -62,15 +62,15 @@ func TestUsers(t *testing.T) {
 			"workday_start": "12:00"
 		}`))
 	assert.Equal(t, statusCode, 200, "")
-	assert.True(t, len(body["user_id"].(string)) > 0, "")
+	assert.True(t, len(resp["user_id"].(string)) > 0, "")
 
 	params = url.Values{
-		"user_id": {body["user_id"].(string)},
+		"user_id": {resp["user_id"].(string)},
 	}
-	body, statusCode, _ = MakeResponse("GET", ts.URL+"/users/info?", &params, nil)
+	resp, statusCode, _ = MakeResponse("GET", ts.URL+"/users/info?", &params, nil)
 	assert.Equal(t, statusCode, 200, "")
-	delete(body, "user_id")
-	assert.Equal(t, body, map[string]interface{}{
+	delete(resp, "user_id")
+	assert.Equal(t, resp, map[string]interface{}{
 		"email":         "abc@mail.ru",
 		"phone":         "+712345678",
 		"first_name":    "Sobaka",
